@@ -658,10 +658,10 @@ export const ServicesPage: React.FC = () => {
                 Pesan Antar-Jemput Gratis
               </Link>
               <Link
-                to="/lacak"
+                to="/login"
                 className="px-8 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-bold tracking-wide transition border border-white/20"
               >
-                Lacak Status Resi Saya
+                Masuk ke Akun Pelanggan
               </Link>
             </div>
           </div>

@@ -9,7 +9,6 @@ export const LandingHeader: React.FC = () => {
     { label: 'Beranda', to: '/' },
     { label: 'Tentang Kami', to: '/tentang' },
     { label: 'Layanan & Tarif', to: '/layanan' },
-    { label: 'Lacak Resi Live', to: '/lacak' },
   ];
 
   return (

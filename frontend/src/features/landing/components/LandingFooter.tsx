@@ -41,11 +41,6 @@ export const LandingFooter: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/lacak" className="hover:text-[#FDBE1A] transition inline-block py-0.5 font-bold">
-                  Lacak Resi Cucian Live
-                </Link>
-              </li>
-              <li>
                 <Link to="/login" className="hover:text-white transition inline-block py-0.5">
                   Portal Masuk Pelanggan
                 </Link>
@@ -90,7 +85,7 @@ export const LandingFooter: React.FC = () => {
             <span>•</span>
             <Link to="/tentang" className="hover:text-white transition">Standar Mutu</Link>
             <span>•</span>
-            <Link to="/lacak" className="hover:text-white transition">Live Tracking</Link>
+            <Link to="/login" className="hover:text-white transition">Masuk Akun</Link>
           </div>
         </div>
       </div>

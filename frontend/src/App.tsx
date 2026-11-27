@@ -59,8 +59,8 @@ function App() {
             </GuestRoute>
           }
         />
-        <Route path="/lacak" element={<TrackingPage />} />
-        <Route path="/lacak/:resi" element={<TrackingPage />} />
+        <Route path="/lacak" element={<Navigate to="/login" replace />} />
+        <Route path="/lacak/:resi" element={<Navigate to="/login" replace />} />
 
         {/* Role: Superadmin & Tim Operasional Outlet (Dilindungi ProtectedRoute) */}
         <Route
@@ -178,8 +178,22 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/app/lacak" element={<TrackingPage />} />
-        <Route path="/app/lacak/:resi" element={<TrackingPage />} />
+        <Route
+          path="/app/lacak"
+          element={
+            <ProtectedRoute allowedRoles={['pelanggan', 'superadmin']}>
+              <TrackingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/lacak/:resi"
+          element={
+            <ProtectedRoute allowedRoles={['pelanggan', 'superadmin']}>
+              <TrackingPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/app/profil-pengaturan"
           element={

@@ -364,8 +364,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             <Link to="/admin/laporan-keuangan" className="hover:text-slate-700">
               Audit Kas
             </Link>
-            <Link to="/lacak" className="hover:text-slate-700">
-              Portal Resi Live
+            <Link to="/admin/antrean-produksi" className="hover:text-slate-700">
+              Antrean Produksi
             </Link>
           </div>
         </footer>
