@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"kucek-backend/config"
+	"kucek-backend/models/auth/account"
 	"kucek-backend/models/pelanggan/profile"
 	voucherModel "kucek-backend/models/pelanggan/voucher"
 	"kucek-backend/views/common/response"
@@ -22,15 +23,44 @@ func NewVoucherController() *VoucherController {
 	return &VoucherController{}
 }
 
-// Helper untuk mencari atau membuat profil Customer berdasarkan UserID
+// Helper untuk mencari atau membuat profil Customer berdasarkan UserID (terisolasi per akun)
 func getOrCreateCustomer(userID any) (*profile.Customer, error) {
 	var customer profile.Customer
-	if err := config.DB.Preload("Package").Where("user_id = ?", userID).First(&customer).Error; err != nil {
-		if err2 := config.DB.Preload("Package").Order("id ASC").First(&customer).Error; err2 != nil {
-			return nil, err2
-		}
+	if err := config.DB.Preload("Package").Where("user_id = ?", userID).First(&customer).Error; err == nil {
+		return &customer, nil
 	}
-	return &customer, nil
+
+	var uID uint
+	switch v := userID.(type) {
+	case uint:
+		uID = v
+	case float64:
+		uID = uint(v)
+	case int:
+		uID = uint(v)
+	default:
+		return nil, fmt.Errorf("sesi otentikasi tidak valid")
+	}
+
+	var user account.User
+	if err := config.DB.First(&user, uID).Error; err != nil {
+		return nil, err
+	}
+
+	newCust := profile.Customer{
+		UserID:           &user.ID,
+		Name:             user.Name,
+		Phone:            user.Phone,
+		Address:          "Jl. Kaliurang, Sleman, DI Yogyakarta",
+		Area:             "Sleman (Zona Gratis Ongkir)",
+		DefaultFragrance: "ocean_fresh",
+		RemainingQuota:   0,
+		LoyaltyPoints:    100,
+	}
+	if err := config.DB.Create(&newCust).Error; err != nil {
+		return nil, err
+	}
+	return &newCust, nil
 }
 
 // CalculateVoucherDiscount menghitung potongan harga nyata berdasarkan aturan voucher

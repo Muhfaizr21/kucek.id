@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"kucek-backend/config"
-	"kucek-backend/models/pelanggan/profile"
+	"kucek-backend/controllers/pelanggan/common"
 	voucherModel "kucek-backend/models/pelanggan/voucher"
 	"kucek-backend/models/superadmin/order"
 	"kucek-backend/views/common/response"
@@ -19,14 +19,10 @@ func NewCustomerHubController() *CustomerHubController {
 }
 
 func (ch *CustomerHubController) GetHubOverview(c *gin.Context) {
-	userID, _ := c.Get("userID")
-
-	var customer profile.Customer
-	if err := config.DB.Preload("Package").Where("user_id = ?", userID).First(&customer).Error; err != nil {
-		if err2 := config.DB.Preload("Package").Order("id ASC").First(&customer).Error; err2 != nil {
-			response.NotFound(c, "Profil pelanggan tidak ditemukan")
-			return
-		}
+	customer, err := common.ResolveCustomerFromContext(c, true)
+	if err != nil {
+		response.Unauthorized(c, err.Error())
+		return
 	}
 
 	var allOrders []order.Order

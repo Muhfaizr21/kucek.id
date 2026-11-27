@@ -7,11 +7,12 @@ import (
 	"time"
 
 	"kucek-backend/config"
+	"kucek-backend/controllers/pelanggan/common"
 	voucherCtrl "kucek-backend/controllers/pelanggan/voucher"
-	"kucek-backend/models/pelanggan/profile"
 	voucherModel "kucek-backend/models/pelanggan/voucher"
 	"kucek-backend/models/public/tracking"
 	"kucek-backend/models/superadmin/order"
+	serviceModel "kucek-backend/models/superadmin/service_catalog"
 	"kucek-backend/views/common/response"
 	pickupView "kucek-backend/views/pelanggan/pickup"
 
@@ -31,19 +32,16 @@ func (b *BookPickupController) BookPickup(c *gin.Context) {
 		return
 	}
 
-	userID, _ := c.Get("userID")
-	var customer profile.Customer
-	if err := config.DB.Where("user_id = ?", userID).First(&customer).Error; err != nil {
-		if err2 := config.DB.Order("id ASC").First(&customer).Error; err2 != nil {
-			response.NotFound(c, "Profil pelanggan tidak ditemukan")
-			return
-		}
+	customer, err := common.ResolveCustomerFromContext(c, false)
+	if err != nil {
+		response.Unauthorized(c, err.Error())
+		return
 	}
 
 	now := time.Now()
 	var totalOrders int64
 	config.DB.Model(&order.Order{}).Count(&totalOrders)
-	orderNumber := fmt.Sprintf("KCK-2026-%03d", totalOrders+1)
+	orderNumber := fmt.Sprintf("KCK-%d-%03d", now.Year(), totalOrders+1)
 
 	serviceType := req.ServiceType
 	if serviceType == "" {
@@ -60,11 +58,24 @@ func (b *BookPickupController) BookPickup(c *gin.Context) {
 		weightKg = 3.0
 	}
 
-	pricePerKg := 8000.0
+	// 1. Ambil tarif layanan secara dinamis dari tabel service_items
+	var srvItem serviceModel.ServiceItem
+	queryItem := "KILOAN-REG"
 	if serviceType == "satuan" {
-		pricePerKg = 25000.0
+		queryItem = "BED-COVER"
 	} else if serviceType == "express" {
-		pricePerKg = 12000.0
+		queryItem = "KILOAN-EXP"
+	}
+
+	pricePerKg := 8000.0
+	if err := config.DB.Where("code = ? AND is_active = true", queryItem).First(&srvItem).Error; err == nil && srvItem.Price > 0 {
+		pricePerKg = srvItem.Price
+	} else {
+		if serviceType == "satuan" {
+			pricePerKg = 25000.0
+		} else if serviceType == "express" {
+			pricePerKg = 12000.0
+		}
 	}
 
 	subtotal := weightKg * pricePerKg
@@ -140,7 +151,7 @@ func (b *BookPickupController) BookPickup(c *gin.Context) {
 		VoucherCode:   appliedVoucherCode,
 		QuotaUsedKg:   quotaUsedKg,
 		TotalAmount:   totalAmount,
-		Status:        order.StatusTerima,
+		Status:        order.StatusMenungguJemput,
 		PaymentStatus: paymentStatus,
 		PaymentMethod: paymentMethod,
 		Notes:         fmt.Sprintf("Jemput %s (%s) • %s", req.PickupDate, req.TimeSlot, req.Notes),
@@ -161,9 +172,9 @@ func (b *BookPickupController) BookPickup(c *gin.Context) {
 	initialLog := tracking.TrackingLog{
 		OrderID:     newOrder.ID,
 		OrderNumber: newOrder.OrderNumber,
-		Status:      string(order.StatusTerima),
-		Title:       "Permintaan Jemput Cucian Terjadwal",
-		Description: fmt.Sprintf("Kurir Raka Pratama dijadwalkan menjemput pada %s sesi %s di %s.", req.PickupDate, req.TimeSlot, req.Address),
+		Status:      string(order.StatusMenungguJemput),
+		Title:       "Permintaan Jemput Cucian Masuk",
+		Description: fmt.Sprintf("Jadwal penjemputan terdaftar untuk %s (%s) di %s. Menunggu armada kurir ditugaskan oleh outlet.", req.PickupDate, req.TimeSlot, req.Address),
 		Location:    req.Address,
 		UpdatedBy:   customer.Name,
 		Timestamp:   now,

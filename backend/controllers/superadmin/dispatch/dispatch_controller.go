@@ -75,10 +75,12 @@ func (d *DispatchController) AssignCourier(c *gin.Context) {
 
 	if taskType == "ANTAR" || ord.Status == order.StatusPacking || ord.Status == order.StatusSelesai {
 		ord.DeliveryTime = &now
+		ord.Status = order.StatusDiantarKurir
 		logTitle = fmt.Sprintf("Kurir %s Mengantar Cucian Bersih", req.CourierName)
 		logDesc = fmt.Sprintf("Cucian bersih sedang dibawa kurir %s menuju alamat %s.", req.CourierName, ord.Customer.Address)
 	} else {
 		ord.PickupTime = &now
+		ord.Status = order.StatusDiambilKurir
 	}
 
 	if req.UpdateStatus != "" {

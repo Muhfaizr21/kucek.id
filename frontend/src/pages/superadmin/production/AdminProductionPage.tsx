@@ -23,11 +23,14 @@ import {
 import { getAuthToken } from '../../../services/authService';
 
 type BackendOrderStatus =
+  | 'menunggu_jemput'
+  | 'diambil_kurir'
   | 'terima'
   | 'cuci'
   | 'kering'
   | 'setrika'
   | 'packing'
+  | 'diantar_kurir'
   | 'selesai';
 
 interface ProductionOrder {

@@ -22,6 +22,7 @@ func RunAutoMigrate(db *gorm.DB) error {
 		&package_catalog.LaundryPackage{},
 		&service_catalog.ServiceItem{},
 		&financeModel.Expense{},
+		&financeModel.PackagePurchase{},
 		&profile.Customer{},
 		&voucher.Voucher{},
 		&voucher.CustomerVoucher{},

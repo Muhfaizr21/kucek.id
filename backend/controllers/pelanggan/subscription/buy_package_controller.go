@@ -7,9 +7,10 @@ import (
 	"time"
 
 	"kucek-backend/config"
+	"kucek-backend/controllers/pelanggan/common"
 	voucherCtrl "kucek-backend/controllers/pelanggan/voucher"
-	"kucek-backend/models/pelanggan/profile"
 	voucherModel "kucek-backend/models/pelanggan/voucher"
+	financeModel "kucek-backend/models/superadmin/finance"
 	"kucek-backend/models/superadmin/package_catalog"
 	"kucek-backend/views/common/response"
 	subView "kucek-backend/views/pelanggan/subscription"
@@ -30,20 +31,16 @@ func (b *BuyPackageController) Buy(c *gin.Context) {
 		return
 	}
 
-	userID, _ := c.Get("userID")
+	customer, err := common.ResolveCustomerFromContext(c, false)
+	if err != nil {
+		response.Unauthorized(c, err.Error())
+		return
+	}
 
 	var pkg package_catalog.LaundryPackage
 	if err := config.DB.First(&pkg, req.PackageID).Error; err != nil {
 		response.NotFound(c, "Paket langganan tidak ditemukan")
 		return
-	}
-
-	var customer profile.Customer
-	if err := config.DB.Where("user_id = ?", userID).First(&customer).Error; err != nil {
-		if err2 := config.DB.Order("id ASC").First(&customer).Error; err2 != nil {
-			response.NotFound(c, "Profil pelanggan tidak ditemukan")
-			return
-		}
 	}
 
 	now := time.Now()
@@ -101,6 +98,23 @@ func (b *BuyPackageController) Buy(c *gin.Context) {
 		response.InternalError(c, "Gagal memproses pembelian paket", err)
 		return
 	}
+
+	// Catat mutasi pembelian paket resmi ke jurnal PackagePurchase untuk laporan keuangan
+	invoiceNo := fmt.Sprintf("INV-PKG-%d-%04d-%03d", now.Year(), customer.ID, pkg.ID)
+	purchaseRecord := financeModel.PackagePurchase{
+		InvoiceNumber:  invoiceNo,
+		CustomerID:     customer.ID,
+		PackageID:      pkg.ID,
+		PackageName:    pkg.Name,
+		QuotaKg:        pkg.QuotaKg,
+		Price:          pkg.Price,
+		DiscountAmount: discount,
+		FinalPaid:      finalPaid,
+		VoucherCode:    appliedVoucher,
+		PaymentMethod:  req.PaymentMethod,
+		PurchaseDate:   now,
+	}
+	config.DB.Create(&purchaseRecord)
 
 	response.Success(c, http.StatusOK, "Paket langganan berhasil diaktifkan", gin.H{
 		"package":            pkg.Name,

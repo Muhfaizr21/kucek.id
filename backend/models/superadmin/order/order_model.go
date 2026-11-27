@@ -12,12 +12,15 @@ import (
 type OrderStatus string
 
 const (
-	StatusTerima  OrderStatus = "terima"
-	StatusCuci    OrderStatus = "cuci"
-	StatusKering  OrderStatus = "kering"
-	StatusSetrika OrderStatus = "setrika"
-	StatusPacking OrderStatus = "packing"
-	StatusSelesai OrderStatus = "selesai"
+	StatusMenungguJemput OrderStatus = "menunggu_jemput"
+	StatusDiambilKurir   OrderStatus = "diambil_kurir"
+	StatusTerima         OrderStatus = "terima"
+	StatusCuci           OrderStatus = "cuci"
+	StatusKering         OrderStatus = "kering"
+	StatusSetrika        OrderStatus = "setrika"
+	StatusPacking        OrderStatus = "packing"
+	StatusDiantarKurir   OrderStatus = "diantar_kurir"
+	StatusSelesai        OrderStatus = "selesai"
 )
 
 type PaymentStatus string

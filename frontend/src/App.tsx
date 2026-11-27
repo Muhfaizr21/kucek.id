@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ProtectedRoute, GuestRoute } from './components/auth/ProtectedRoute';
 
 // Public Pages (pages/public/<fitur>/<isi_fitur>)
 import { LandingPage } from './pages/public/landing/LandingPage';
@@ -24,38 +25,164 @@ import { CustomerHistoryPage } from './pages/pelanggan/history/CustomerHistoryPa
 import { CustomerSettingsPage } from './pages/pelanggan/settings/CustomerSettingsPage';
 import { CustomerVoucherPage } from './pages/pelanggan/voucher/CustomerVoucherPage';
 
+const ADMIN_ROLES: Array<'superadmin' | 'kasir' | 'operator' | 'kurir'> = [
+  'superadmin',
+  'kasir',
+  'operator',
+  'kurir',
+];
+
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Role: Public */}
+        {/* Role: Public (Akses Umum) */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/daftar" element={<LoginPage />} />
+        <Route
+          path="/login"
+          element={
+            <GuestRoute>
+              <LoginPage />
+            </GuestRoute>
+          }
+        />
+        <Route
+          path="/daftar"
+          element={
+            <GuestRoute>
+              <LoginPage />
+            </GuestRoute>
+          }
+        />
         <Route path="/lacak" element={<TrackingPage />} />
         <Route path="/lacak/:resi" element={<TrackingPage />} />
 
-        {/* Role: Superadmin */}
-        <Route path="/admin" element={<AdminDashboardPage />} />
-        <Route path="/admin/pos" element={<AdminPosPage />} />
-        <Route path="/admin/antrean-produksi" element={<AdminProductionPage />} />
-        <Route path="/admin/dispatch-jemput" element={<AdminDispatchPage />} />
-        <Route path="/admin/pelanggan" element={<AdminCustomersPage />} />
-        <Route path="/admin/layanan" element={<AdminServicesPage />} />
-        <Route path="/admin/paket-langganan" element={<AdminPackagesPage />} />
-        <Route path="/admin/laporan-keuangan" element={<AdminFinancePage />} />
-        <Route path="/admin/manajemen-staf" element={<AdminStaffPage />} />
+        {/* Role: Superadmin & Tim Operasional Outlet (Dilindungi ProtectedRoute) */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={ADMIN_ROLES}>
+              <AdminDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/pos"
+          element={
+            <ProtectedRoute allowedRoles={ADMIN_ROLES}>
+              <AdminPosPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/antrean-produksi"
+          element={
+            <ProtectedRoute allowedRoles={ADMIN_ROLES}>
+              <AdminProductionPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/dispatch-jemput"
+          element={
+            <ProtectedRoute allowedRoles={ADMIN_ROLES}>
+              <AdminDispatchPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/pelanggan"
+          element={
+            <ProtectedRoute allowedRoles={ADMIN_ROLES}>
+              <AdminCustomersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/layanan"
+          element={
+            <ProtectedRoute allowedRoles={ADMIN_ROLES}>
+              <AdminServicesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/paket-langganan"
+          element={
+            <ProtectedRoute allowedRoles={ADMIN_ROLES}>
+              <AdminPackagesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/laporan-keuangan"
+          element={
+            <ProtectedRoute allowedRoles={['superadmin']}>
+              <AdminFinancePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/manajemen-staf"
+          element={
+            <ProtectedRoute allowedRoles={['superadmin']}>
+              <AdminStaffPage />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Role: Pelanggan */}
+        {/* Role: Pelanggan (Dilindungi ProtectedRoute) */}
         <Route path="/app" element={<Navigate to="/app/dashboard" replace />} />
-        <Route path="/app/dashboard" element={<CustomerHomePage />} />
-        <Route path="/app/pesan-jemput" element={<CustomerPickupPage />} />
-        <Route path="/app/beli-paket" element={<CustomerPackagesPage />} />
-        <Route path="/app/riwayat" element={<CustomerHistoryPage />} />
-        <Route path="/app/voucher" element={<CustomerVoucherPage />} />
+        <Route
+          path="/app/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['pelanggan', 'superadmin']}>
+              <CustomerHomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/pesan-jemput"
+          element={
+            <ProtectedRoute allowedRoles={['pelanggan', 'superadmin']}>
+              <CustomerPickupPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/beli-paket"
+          element={
+            <ProtectedRoute allowedRoles={['pelanggan', 'superadmin']}>
+              <CustomerPackagesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/riwayat"
+          element={
+            <ProtectedRoute allowedRoles={['pelanggan', 'superadmin']}>
+              <CustomerHistoryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/voucher"
+          element={
+            <ProtectedRoute allowedRoles={['pelanggan', 'superadmin']}>
+              <CustomerVoucherPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/app/lacak" element={<TrackingPage />} />
         <Route path="/app/lacak/:resi" element={<TrackingPage />} />
-        <Route path="/app/profil-pengaturan" element={<CustomerSettingsPage />} />
+        <Route
+          path="/app/profil-pengaturan"
+          element={
+            <ProtectedRoute allowedRoles={['pelanggan', 'superadmin']}>
+              <CustomerSettingsPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

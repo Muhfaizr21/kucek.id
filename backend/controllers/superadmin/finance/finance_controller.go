@@ -38,13 +38,16 @@ func (f *FinanceController) GetSummary(c *gin.Context) {
 	config.DB.Model(&order.Order{}).Where("payment_status = ?", order.PaymentUnpaid).
 		Select("COALESCE(SUM(total_amount), 0)").Scan(&totalUnpaidAmount)
 
-	// Hitung pendapatan dari paket aktif pelanggan
-	var customersWithPkg []profile.Customer
-	config.DB.Preload("Package").Where("package_id IS NOT NULL").Find(&customersWithPkg)
+	// Hitung pendapatan dari paket: ambil dari tabel PackagePurchase (real ledger), fallback jika belum ada transaksi baru
 	var packageRevenue float64
-	for _, cust := range customersWithPkg {
-		if cust.Package != nil {
-			packageRevenue += cust.Package.Price
+	config.DB.Model(&financeModel.PackagePurchase{}).Select("COALESCE(SUM(final_paid), 0)").Scan(&packageRevenue)
+	if packageRevenue == 0 {
+		var customersWithPkg []profile.Customer
+		config.DB.Preload("Package").Where("package_id IS NOT NULL").Find(&customersWithPkg)
+		for _, cust := range customersWithPkg {
+			if cust.Package != nil {
+				packageRevenue += cust.Package.Price
+			}
 		}
 	}
 

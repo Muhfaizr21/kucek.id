@@ -298,8 +298,12 @@ export const TrackingPage: React.FC = () => {
 
   const getStatusLabelText = () => {
     switch (trackingData.status.toLowerCase()) {
+      case 'menunggu_jemput':
+        return 'Menunggu Penjemputan Kurir';
+      case 'diambil_kurir':
+        return 'Diambil Kurir Menuju Outlet';
       case 'terima':
-        return 'Diterima & Antrean Cuci';
+        return 'Diterima & Timbang di Outlet';
       case 'cuci':
         return 'Pencucian Tabung Khusus';
       case 'kering':
@@ -308,8 +312,10 @@ export const TrackingPage: React.FC = () => {
         return 'Setrika Uap & QC';
       case 'packing':
         return 'Segel Packing Higienis';
+      case 'diantar_kurir':
+        return 'Sedang Diantar Kurir ke Rumah';
       case 'selesai':
-        return 'Selesai Diantar';
+        return 'Selesai & Diterima Pelanggan';
       default:
         return 'Sedang Diproses';
     }

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"kucek-backend/config"
-	"kucek-backend/models/pelanggan/profile"
+	"kucek-backend/controllers/pelanggan/common"
 	"kucek-backend/models/public/tracking"
 	"kucek-backend/models/superadmin/order"
 	"kucek-backend/views/common/response"
@@ -21,14 +21,10 @@ func NewOrderHistoryController() *OrderHistoryController {
 }
 
 func (h *OrderHistoryController) ListMyOrders(c *gin.Context) {
-	userID, _ := c.Get("userID")
-
-	var customer profile.Customer
-	if err := config.DB.Where("user_id = ?", userID).First(&customer).Error; err != nil {
-		if err2 := config.DB.Order("id ASC").First(&customer).Error; err2 != nil {
-			response.NotFound(c, "Profil pelanggan tidak ditemukan")
-			return
-		}
+	customer, err := common.ResolveCustomerFromContext(c, false)
+	if err != nil {
+		response.Unauthorized(c, err.Error())
+		return
 	}
 
 	var orders []order.Order
@@ -44,16 +40,22 @@ func (h *OrderHistoryController) ListMyOrders(c *gin.Context) {
 
 func (h *OrderHistoryController) PayOrder(c *gin.Context) {
 	orderID := c.Param("id")
-	userID, _ := c.Get("userID")
 
-	var customer profile.Customer
-	if err := config.DB.Where("user_id = ?", userID).First(&customer).Error; err != nil {
-		config.DB.Order("id ASC").First(&customer)
+	customer, err := common.ResolveCustomerFromContext(c, false)
+	if err != nil {
+		response.Unauthorized(c, err.Error())
+		return
 	}
 
 	var ord order.Order
 	if err := config.DB.Where("id = ? OR order_number = ?", orderID, orderID).First(&ord).Error; err != nil {
 		response.NotFound(c, "Pesanan tidak ditemukan")
+		return
+	}
+
+	// Cegah IDOR: Pastikan pesanan benar-benar milik pelanggan yang login
+	if ord.CustomerID != customer.ID {
+		response.Forbidden(c, "Anda tidak memiliki hak akses untuk membayar pesanan ini")
 		return
 	}
 

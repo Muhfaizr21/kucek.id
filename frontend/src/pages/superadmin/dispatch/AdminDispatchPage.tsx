@@ -202,8 +202,12 @@ export const AdminDispatchPage: React.FC = () => {
               assignedCourier ||
               courierOptions[0]?.value ||
               '';
-            const isReadyToDeliver =
-              ord.status === 'packing' || ord.status === 'selesai';
+            const isWaitingPickup = ord.status === 'menunggu_jemput';
+            const isPickedUp = ord.status === 'diambil_kurir';
+            const isReadyToDeliver = ord.status === 'packing';
+            const isDelivering = ord.status === 'diantar_kurir';
+            const isCompleted = ord.status === 'selesai';
+
             const waPhone = (ord.customer?.phone || '').startsWith('0')
               ? '62' + (ord.customer?.phone || '').slice(1)
               : ord.customer?.phone || '';
@@ -220,18 +224,30 @@ export const AdminDispatchPage: React.FC = () => {
                     </span>
                     <span
                       className={`text-[10.5px] font-extrabold px-2.5 py-1 rounded-full ${
-                        isReadyToDeliver
+                        isCompleted
                           ? 'bg-emerald-50 text-emerald-700'
-                          : assignedCourier
-                          ? 'bg-sky-50 text-[#0095FF]'
-                          : 'bg-amber-50 text-amber-700'
+                          : isDelivering
+                          ? 'bg-purple-50 text-purple-700'
+                          : isReadyToDeliver
+                          ? 'bg-amber-50 text-amber-700'
+                          : isPickedUp
+                          ? 'bg-blue-50 text-blue-700'
+                          : isWaitingPickup
+                          ? 'bg-rose-50 text-rose-700'
+                          : 'bg-slate-100 text-slate-700'
                       }`}
                     >
-                      {isReadyToDeliver
+                      {isCompleted
+                        ? 'Selesai Diterima'
+                        : isDelivering
+                        ? 'Sedang Diantar'
+                        : isReadyToDeliver
                         ? 'Siap Antar Balik'
-                        : assignedCourier
-                        ? 'Kurir Ditugaskan'
-                        : 'Menunggu Jemput'}
+                        : isPickedUp
+                        ? 'Diambil Kurir'
+                        : isWaitingPickup
+                        ? 'Menunggu Kurir'
+                        : ord.status}
                     </span>
                   </div>
 
@@ -299,26 +315,47 @@ export const AdminDispatchPage: React.FC = () => {
                 </div>
 
                 <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
-                  <button
-                    type="button"
-                    disabled={assigningId === ord.id}
-                    onClick={() => handleAssignCourier(ord, 'JEMPUT')}
-                    className="flex-1 py-2.5 px-3 rounded-xl bg-[#0095FF] hover:bg-[#007ACC] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer disabled:opacity-50"
-                  >
-                    <Truck className="w-3.5 h-3.5" />
-                    <span>Tugaskan Jemput</span>
-                  </button>
-                  <button
-                    type="button"
-                    disabled={assigningId === ord.id}
-                    onClick={() =>
-                      handleAssignCourier(ord, 'ANTAR', 'selesai')
-                    }
-                    className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer disabled:opacity-50"
-                  >
-                    <Navigation className="w-3.5 h-3.5" />
-                    <span>Antar Selesai</span>
-                  </button>
+                  {isPickedUp ? (
+                    <button
+                      type="button"
+                      disabled={assigningId === ord.id}
+                      onClick={() => handleAssignCourier(ord, 'JEMPUT', 'terima')}
+                      className="flex-1 py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer disabled:opacity-50"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Tiba di Outlet & Timbang</span>
+                    </button>
+                  ) : isDelivering ? (
+                    <button
+                      type="button"
+                      disabled={assigningId === ord.id}
+                      onClick={() => handleAssignCourier(ord, 'ANTAR', 'selesai')}
+                      className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer disabled:opacity-50"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Konfirmasi Diterima Pelanggan</span>
+                    </button>
+                  ) : isReadyToDeliver ? (
+                    <button
+                      type="button"
+                      disabled={assigningId === ord.id}
+                      onClick={() => handleAssignCourier(ord, 'ANTAR', 'diantar_kurir')}
+                      className="flex-1 py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer disabled:opacity-50"
+                    >
+                      <Navigation className="w-3.5 h-3.5" />
+                      <span>Tugaskan Antar Bersih</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={assigningId === ord.id}
+                      onClick={() => handleAssignCourier(ord, 'JEMPUT', 'diambil_kurir')}
+                      className="flex-1 py-2.5 px-3 rounded-xl bg-[#0095FF] hover:bg-[#007ACC] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer disabled:opacity-50"
+                    >
+                      <Truck className="w-3.5 h-3.5" />
+                      <span>Tugaskan Kurir Jemput</span>
+                    </button>
+                  )}
                 </div>
               </div>
             );
