@@ -1,6 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Truck, Package, Clock, Sparkles, LogOut } from 'lucide-react';
+import {
+  LayoutGrid,
+  Truck,
+  Layers,
+  User,
+  ClipboardList,
+  TicketPercent,
+  MessageCircle,
+  Settings,
+  LogOut,
+  Search,
+  Bell,
+  Menu,
+  X,
+  CheckCircle2,
+  Sparkles,
+} from 'lucide-react';
 import { getCurrentUser, logoutUser } from '../../services/authService';
 
 interface CustomerLayoutProps {
@@ -12,71 +28,403 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const currentUser = getCurrentUser();
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [activeModal, setActiveModal] = useState<'promo' | 'profile' | null>(null);
+
+  const displayName = currentUser?.name || 'Budi Santoso';
+  const displayEmail = currentUser?.email || 'user@kucek.id';
+  const displayPhone = currentUser?.phone || '081298765432';
+
   const handleLogout = async () => {
     await logoutUser();
     navigate('/login', { replace: true });
   };
 
-  const navItems = [
-    { label: 'Beranda', path: '/app', icon: Home },
-    { label: 'Pesan Jemput', path: '/app/pesan-jemput', icon: Truck },
-    { label: 'Paket Kuota', path: '/app/beli-paket', icon: Package },
-    { label: 'Riwayat', path: '/app/riwayat', icon: Clock },
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = searchQuery.trim();
+    if (!trimmed) return;
+    if (trimmed.toUpperCase().startsWith('KCK-')) {
+      navigate(`/track/${trimmed.toUpperCase()}`);
+    } else {
+      navigate('/app/riwayat');
+    }
+  };
+
+  const mainMenuItems = [
+    { label: 'Dashboard', path: '/app', icon: LayoutGrid, type: 'link' as const },
+    { label: 'Pesan Jemput', path: '/app/pesan-jemput', icon: Truck, type: 'link' as const },
+    { label: 'Paket & Kuota', path: '/app/beli-paket', icon: Layers, type: 'link' as const },
+    { label: 'Profil Pelanggan', path: '#profil', icon: User, type: 'modal-profile' as const },
+    { label: 'Pesanan Saya', path: '/app/riwayat', icon: ClipboardList, type: 'link' as const },
+    { label: 'Voucher & Promo', path: '#promo', icon: TicketPercent, type: 'modal-promo' as const },
+    { label: 'Chat Kasir', path: '/track/KCK-2026-001', icon: MessageCircle, type: 'link' as const },
   ];
 
-  return (
-    <div className="min-h-screen bg-slate-50 flex flex-col pb-20 md:pb-0">
-      {/* Top Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link to="/app" className="flex items-center space-x-1.5 text-sky-600 font-extrabold text-xl">
-            <div className="w-7 h-7 rounded-lg bg-sky-600 flex items-center justify-center text-white shadow-sm">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <span>kucek<span className="text-slate-900">.id</span></span>
-          </Link>
-          <div className="flex items-center gap-2.5">
-            <span className="text-xs bg-sky-50 text-sky-700 border border-sky-200 px-2.5 py-1 rounded-full font-semibold">
-              Pelanggan: {currentUser?.name || 'Budi Santoso'}
+  const renderSidebarContent = () => (
+    <div className="flex flex-col justify-between h-full py-6 select-none">
+      <div>
+        {/* Brand Logo matching TechBomb two-tone style with blue underline accent */}
+        <div className="px-8 mb-8 flex items-center justify-between">
+          <Link to="/app" className="inline-flex items-baseline tracking-tight">
+            <span className="text-[23px] font-black text-[#0095FF]">kucek</span>
+            <span className="text-[23px] font-black text-[#111827] relative">
+              .id
+              <span className="absolute -bottom-1 left-0.5 right-0 h-[3px] bg-[#0095FF] rounded-full" />
             </span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => setMobileSidebarOpen(false)}
+            className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Menu Section */}
+        <div>
+          <p className="px-8 text-[11.5px] font-medium text-[#94A3B8] mb-2.5">Menu</p>
+          <nav className="space-y-1 pr-4">
+            {mainMenuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive =
+                item.type === 'link' && location.pathname === item.path;
+
+              if (item.type === 'modal-profile' || item.type === 'modal-promo') {
+                const modalKey = item.type === 'modal-profile' ? 'profile' : 'promo';
+                const isModalActive = activeModal === modalKey;
+                return (
+                  <button
+                    key={item.label}
+                    type="button"
+                    onClick={() => {
+                      setActiveModal(modalKey);
+                      setMobileSidebarOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3.5 pl-8 pr-5 py-2.5 rounded-r-full text-[13.5px] font-semibold transition-all cursor-pointer ${
+                      isModalActive
+                        ? 'bg-[#0095FF] text-white shadow-[0_8px_18px_-4px_rgba(0,149,255,0.45)]'
+                        : 'text-[#64748B] hover:text-[#111827] hover:bg-slate-50'
+                    }`}
+                  >
+                    <Icon className="w-[18px] h-[18px] shrink-0" />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              }
+
+              return (
+                <Link
+                  key={item.label}
+                  to={item.path}
+                  onClick={() => setMobileSidebarOpen(false)}
+                  className={`flex items-center gap-3.5 pl-8 pr-5 py-2.5 rounded-r-full text-[13.5px] font-semibold transition-all ${
+                    isActive
+                      ? 'bg-[#0095FF] text-white shadow-[0_8px_18px_-4px_rgba(0,149,255,0.45)]'
+                      : 'text-[#64748B] hover:text-[#111827] hover:bg-slate-50'
+                  }`}
+                >
+                  <Icon className="w-[18px] h-[18px] shrink-0" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Divider */}
+        <div className="my-5 mx-8 border-t border-slate-100" />
+
+        {/* Other Section */}
+        <div>
+          <p className="px-8 text-[11.5px] font-medium text-[#94A3B8] mb-2.5">Other</p>
+          <div className="space-y-1 pr-4">
+            <button
+              type="button"
+              onClick={() => {
+                setActiveModal('profile');
+                setMobileSidebarOpen(false);
+              }}
+              className="w-full flex items-center gap-3.5 pl-8 pr-5 py-2.5 rounded-r-full text-[13.5px] font-semibold text-[#64748B] hover:text-[#111827] hover:bg-slate-50 transition cursor-pointer"
+            >
+              <Settings className="w-[18px] h-[18px] shrink-0" />
+              <span>Settings</span>
+            </button>
+
             <button
               type="button"
               onClick={handleLogout}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-rose-600 transition cursor-pointer"
+              className="w-full flex items-center gap-3.5 pl-8 pr-5 py-2.5 rounded-r-full text-[13.5px] font-semibold text-[#64748B] hover:text-rose-600 hover:bg-rose-50/60 transition cursor-pointer"
             >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Keluar</span>
+              <LogOut className="w-[18px] h-[18px] shrink-0" />
+              <span>Logout</span>
             </button>
           </div>
         </div>
-      </header>
+      </div>
 
-      {/* Main Body */}
-      <main className="max-w-4xl mx-auto w-full px-4 py-6 flex-1">
-        {children}
-      </main>
-
-      {/* Bottom Navigation for Mobile / Tablet */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 md:hidden">
-        <div className="grid grid-cols-4 h-16">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex flex-col items-center justify-center text-xs font-semibold transition ${
-                  isActive ? 'text-sky-600' : 'text-slate-400 hover:text-slate-600'
-                }`}
-              >
-                <Icon className={`w-5 h-5 mb-1 ${isActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
+      {/* Bottom Mini Card: Hygienic Protocol Info */}
+      <div className="mx-6 p-3.5 rounded-2xl bg-[#F4F8FD] border border-[#E1EDFC] hidden lg:block">
+        <div className="flex items-center gap-2 text-[#0095FF] font-extrabold text-xs">
+          <Sparkles className="w-4 h-4 shrink-0" />
+          <span>1 Mesin 1 Pelanggan</span>
         </div>
-      </nav>
+        <p className="text-[11px] text-[#64748B] mt-1 leading-relaxed">
+          Pakaian Anda tidak pernah dicampur dengan milik pelanggan lain.
+        </p>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen w-full bg-[#F6F8FB] flex font-sans text-[#111827]">
+      {/* Desktop Left Sidebar */}
+      <aside className="hidden lg:block w-[240px] bg-white border-r border-slate-100 shrink-0 sticky top-0 h-screen">
+        {renderSidebarContent()}
+      </aside>
+
+      {/* Mobile Drawer Sidebar */}
+      {mobileSidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex">
+          <div
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
+            onClick={() => setMobileSidebarOpen(false)}
+          />
+          <aside className="relative w-[250px] bg-white h-full z-10 shadow-2xl">
+            {renderSidebarContent()}
+          </aside>
+        </div>
+      )}
+
+      {/* Right Main Column */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+        {/* Top Navbar matching reference screenshot */}
+        <header className="h-20 bg-white border-b border-slate-100 px-5 sm:px-8 flex items-center justify-between gap-4 sticky top-0 z-30">
+          <div className="flex items-center gap-3 flex-1 max-w-[420px]">
+            <button
+              type="button"
+              onClick={() => setMobileSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            <form
+              onSubmit={handleSearchSubmit}
+              className="w-full bg-[#F5F7FA] rounded-xl px-4 py-2.5 flex items-center justify-between gap-2 border border-transparent focus-within:border-[#0095FF]/40 focus-within:bg-white transition"
+            >
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Cari resi KCK-2026-001 atau layanan..."
+                className="w-full bg-transparent text-xs font-medium text-slate-700 placeholder:text-[#94A3B8] focus:outline-none"
+              />
+              <button
+                type="submit"
+                aria-label="Cari"
+                className="text-[#64748B] hover:text-[#0095FF] transition cursor-pointer"
+              >
+                <Search className="w-4 h-4" />
+              </button>
+            </form>
+          </div>
+
+          {/* Right Notification Bell & User Profile */}
+          <div className="flex items-center gap-5 sm:gap-6">
+            {/* Notification Bell with Blue Dot */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setNotifOpen(!notifOpen)}
+                className="relative p-2 rounded-xl text-[#94A3B8] hover:text-[#111827] hover:bg-slate-50 transition cursor-pointer"
+                aria-label="Notifikasi"
+              >
+                <Bell className="w-5 h-5 fill-[#CBD5E1] text-[#94A3B8]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#0095FF] border-2 border-white absolute top-1.5 right-1.5" />
+              </button>
+
+              {notifOpen && (
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 z-50">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
+                    <span className="text-xs font-extrabold text-slate-900">
+                      Notifikasi Cucian Live
+                    </span>
+                    <span className="text-[10px] font-bold text-[#0095FF] bg-sky-50 px-2 py-0.5 rounded-full">
+                      2 Baru
+                    </span>
+                  </div>
+                  <div className="divide-y divide-slate-100 text-xs mt-1">
+                    <div className="py-2.5">
+                      <p className="font-bold text-slate-800">
+                        KCK-2026-001 • Tahap Setrika Uap
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Cucian 4.5 Kg Anda sedang disetrika uap & quality control.
+                      </p>
+                    </div>
+                    <div className="py-2.5">
+                      <p className="font-bold text-slate-800">
+                        Kuota Paket Keluarga Aktif
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Sisa saldo kuota Anda 15.50 Kg berlaku hingga bulan depan.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* User Profile Avatar + Name + Email */}
+            <div
+              onClick={() => setActiveModal('profile')}
+              className="flex items-center gap-3 cursor-pointer group"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+                alt={displayName}
+                className="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-xs group-hover:border-[#0095FF] transition"
+              />
+              <div className="hidden sm:block text-left">
+                <p className="text-[13.5px] font-extrabold text-[#111827] leading-tight group-hover:text-[#0095FF] transition">
+                  {displayName}
+                </p>
+                <p className="text-[11.5px] font-medium text-[#94A3B8] leading-tight mt-0.5">
+                  {displayEmail}
+                </p>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Workspace Canvas */}
+        <main className="flex-1 p-5 sm:p-7 lg:p-8 overflow-y-auto">
+          {children}
+        </main>
+      </div>
+
+      {/* Modal Profil & Pengaturan Pelanggan */}
+      {activeModal === 'profile' && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-extrabold text-slate-900">
+                Profil & Alamat Pelanggan
+              </h3>
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+              <img
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+                alt={displayName}
+                className="w-12 h-12 rounded-xl object-cover"
+              />
+              <div>
+                <p className="font-extrabold text-sm text-slate-900">{displayName}</p>
+                <p className="text-xs text-slate-500">{displayEmail}</p>
+                <p className="text-xs text-[#0095FF] font-bold mt-0.5">
+                  WA: {displayPhone}
+                </p>
+              </div>
+            </div>
+            <div className="text-xs space-y-2 text-slate-600">
+              <div className="p-3 rounded-xl border border-slate-100">
+                <span className="text-[10px] font-bold uppercase text-slate-400 block">
+                  Alamat Penjemputan Utama
+                </span>
+                <span className="font-semibold text-slate-800 mt-0.5 block">
+                  Jl. Kaliurang KM 5 No. 12, Sleman, Yogyakarta
+                </span>
+              </div>
+              <div className="p-3 rounded-xl border border-slate-100">
+                <span className="text-[10px] font-bold uppercase text-slate-400 block">
+                  Preferensi Parfum Default
+                </span>
+                <span className="font-semibold text-slate-800 mt-0.5 block">
+                  Ocean Fresh • Pisahkan Pakaian Putih
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActiveModal(null)}
+              className="w-full py-2.5 rounded-xl bg-[#0095FF] hover:bg-[#007ACC] text-white text-xs font-bold transition cursor-pointer"
+            >
+              Simpan & Tutup
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Voucher & Promo Pelanggan */}
+      {activeModal === 'promo' && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-extrabold text-slate-900">
+                Voucher & Promo Member Aktif
+              </h3>
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div className="p-4 rounded-2xl border border-dashed border-[#0095FF] bg-sky-50/50 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-[#0095FF] text-white">
+                    KUCEKHEMAT20
+                  </span>
+                  <p className="text-xs font-extrabold text-slate-900 mt-1.5">
+                    Gratis Antar-Jemput Tanpa Minimum Kg
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    Berlaku untuk seluruh member paket aktif
+                  </p>
+                </div>
+                <CheckCircle2 className="w-5 h-5 text-[#0095FF] shrink-0" />
+              </div>
+              <div className="p-4 rounded-2xl border border-dashed border-emerald-400 bg-emerald-50/40 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-emerald-600 text-white">
+                    BEDCOVERFREE
+                  </span>
+                  <p className="text-xs font-extrabold text-slate-900 mt-1.5">
+                    Diskon 30% Cuci Bed Cover & Sprei King
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    Otomatis teraplikasi saat booking jemput
+                  </p>
+                </div>
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveModal(null);
+                navigate('/app/pesan-jemput');
+              }}
+              className="w-full py-2.5 rounded-xl bg-[#0095FF] hover:bg-[#007ACC] text-white text-xs font-bold transition cursor-pointer"
+            >
+              Gunakan Voucher & Pesan Jemput
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
