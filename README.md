@@ -134,11 +134,8 @@ cp .env.example .env
 # Unduh dependensi Go
 go mod tidy
 
-# Jalankan migrasi database
-migrate -path migrations -database "postgres://postgres:password@localhost:5432/kucek_db?sslmode=disable" up
-
-# Jalankan backend API
-go run cmd/api/main.go
+# Jalankan backend API langsung
+go run main.go
 ```
 *Backend API akan berjalan di `http://localhost:8080`*
 

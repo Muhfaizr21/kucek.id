@@ -8,9 +8,7 @@ Backend service untuk platform **kucek.id** dibangun menggunakan **Golang 1.22+*
 
 ```
 backend/
-├── cmd/
-│   └── api/
-│       └── main.go           # Entrypoint aplikasi HTTP server & bootstrap
+├── main.go                   # Entrypoint aplikasi HTTP server & bootstrap
 ├── config/
 │   ├── config.go             # Loader variabel lingkungan (.env)
 │   └── database.go           # Koneksi PostgreSQL, connection pool, auto-migration & seeder
@@ -67,20 +65,19 @@ CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
 
 ## 🚀 Cara Menjalankan Backend
 
-1. **Unduh dependensi:**
+1. **Masuk ke folder backend:**
    ```bash
    cd backend
-   go mod download
    ```
 
-2. **Jalankan server pengembangan:**
+2. **Jalankan server pengembangan langsung:**
    ```bash
-   go run cmd/api/main.go
+   go run main.go
    ```
 
-3. **Build binary produksi:**
+3. **Build binary produksi (opsional):**
    ```bash
-   go build -o bin/server cmd/api/main.go
+   go build -o bin/server main.go
    ./bin/server
    ```
 
