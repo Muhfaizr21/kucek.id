@@ -1,64 +1,65 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 export const LandingHeader: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const navLinks = [
+    { label: 'Beranda', to: '/' },
+    { label: 'Tentang Kami', to: '/tentang' },
+    { label: 'Layanan & Tarif', to: '/layanan' },
+    { label: 'Lacak Resi Live', to: '/lacak' },
+  ];
 
   return (
-    <header className="w-full bg-[#F4EDE5] sticky top-0 z-50 border-b border-[#E5DCD2]/70">
+    <header className="w-full bg-[#F4EDE5] sticky top-0 z-50 border-b border-[#E5DCD2]/80 backdrop-blur-md">
       <div className="max-w-5xl mx-auto px-5 sm:px-8 h-20 flex items-center justify-between">
         {/* Brand Logo: kucek.id */}
         <Link
           to="/"
-          className="text-2xl font-extrabold text-[#1A1918] tracking-tight min-h-[44px] inline-flex items-center"
+          className="text-2xl font-black text-[#1A1918] tracking-tight min-h-[44px] inline-flex items-center gap-1 group"
         >
-          kucek<span className="text-[#C8430E]">.id</span>
+          <span>kucek</span>
+          <span className="text-[#C8430E] group-hover:scale-110 transition-transform">.id</span>
         </Link>
 
-        {/* Center Navigation Links (Desktop: 4 items matching reference) */}
+        {/* Center Navigation Links (Desktop) */}
         <nav
           aria-label="Navigasi Utama"
-          className="hidden md:flex items-center space-x-8 text-sm font-medium text-[#4A4643]"
+          className="hidden md:flex items-center space-x-7 text-[13.5px] font-semibold text-[#57534E]"
         >
-          <a
-            href="#beranda"
-            className="text-[#1A1918] font-bold border-b-2 border-[#1A1918] py-1 min-h-[44px] inline-flex items-center"
-          >
-            Beranda
-          </a>
-          <a
-            href="#tentang"
-            className="hover:text-[#1A1918] transition py-1 min-h-[44px] inline-flex items-center"
-          >
-            Tentang Kami
-          </a>
-          <a
-            href="#paket"
-            className="hover:text-[#1A1918] transition py-1 min-h-[44px] inline-flex items-center"
-          >
-            Harga
-          </a>
-          <a
-            href="#kontak"
-            className="hover:text-[#1A1918] transition py-1 min-h-[44px] inline-flex items-center"
-          >
-            Kontak
-          </a>
+          {navLinks.map((item) => {
+            const isActive = location.pathname === item.to;
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`py-1 min-h-[44px] inline-flex items-center transition relative ${
+                  isActive
+                    ? 'text-[#1A1918] font-bold after:absolute after:bottom-3 after:left-0 after:right-0 after:h-0.5 after:bg-[#C8430E]'
+                    : 'hover:text-[#1A1918]'
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
-        {/* Right Action Button */}
+        {/* Right Action Buttons */}
         <div className="hidden md:flex items-center gap-3">
           <Link
             to="/login"
-            className="px-4 py-2 min-h-[44px] inline-flex items-center justify-center text-sm font-bold text-[#1A1918] hover:text-[#C8430E] transition"
+            className="px-4 py-2 min-h-[44px] inline-flex items-center justify-center text-xs font-bold text-[#1A1918] hover:text-[#C8430E] transition"
           >
-            Masuk
+            Masuk Akun
           </Link>
           <Link
-            to="/register"
-            className="px-6 py-2.5 min-h-[44px] inline-flex items-center justify-center rounded-full bg-[#C8430E] hover:bg-[#AD380A] active:bg-[#932F08] text-white text-sm font-bold transition"
+            to="/app/pesan-jemput"
+            className="px-5 py-2.5 min-h-[44px] inline-flex items-center justify-center rounded-full bg-[#C8430E] hover:bg-[#AD380A] active:bg-[#932F08] text-white text-xs font-extrabold tracking-wide shadow-sm hover:shadow-md transition-all"
           >
-            Daftar Akun
+            Pesan Antar-Jemput
           </Link>
         </div>
 
@@ -86,43 +87,38 @@ export const LandingHeader: React.FC = () => {
       {mobileMenuOpen && (
         <nav
           aria-label="Navigasi Seluler"
-          className="md:hidden bg-[#F4EDE5] border-t border-[#E5DCD2] px-6 py-4 space-y-1"
+          className="md:hidden bg-[#F4EDE5] border-t border-[#E5DCD2] px-6 py-4 space-y-1 shadow-lg"
         >
-          <a
-            href="#beranda"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center min-h-[44px] text-sm font-bold text-[#1A1918]"
-          >
-            Beranda
-          </a>
-          <a
-            href="#tentang"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center min-h-[44px] text-sm font-medium text-[#4A4643]"
-          >
-            Tentang Kami
-          </a>
-          <a
-            href="#paket"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center min-h-[44px] text-sm font-medium text-[#4A4643]"
-          >
-            Harga
-          </a>
-          <a
-            href="#kontak"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center min-h-[44px] text-sm font-medium text-[#4A4643]"
-          >
-            Kontak
-          </a>
-          <div className="pt-3 border-t border-[#E5DCD2]">
+          {navLinks.map((item) => {
+            const isActive = location.pathname === item.to;
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center min-h-[44px] text-sm ${
+                  isActive ? 'text-[#C8430E] font-extrabold' : 'text-[#1A1918] font-bold'
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+
+          <div className="pt-3 border-t border-[#E5DCD2] flex flex-col gap-2">
             <Link
               to="/login"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full min-h-[44px] inline-flex items-center justify-center rounded-full bg-[#C8430E] hover:bg-[#AD380A] text-white text-sm font-bold"
+              className="w-full min-h-[44px] inline-flex items-center justify-center rounded-xl border border-[#D5C9BD] text-xs font-bold text-[#1A1918]"
             >
-              Daftar Akun
+              Masuk Akun
+            </Link>
+            <Link
+              to="/app/pesan-jemput"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full min-h-[44px] inline-flex items-center justify-center rounded-xl bg-[#C8430E] text-white text-xs font-extrabold shadow-sm"
+            >
+              Pesan Antar-Jemput
             </Link>
           </div>
         </nav>

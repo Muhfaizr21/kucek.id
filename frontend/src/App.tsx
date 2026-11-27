@@ -5,6 +5,8 @@ import { ProtectedRoute, GuestRoute } from './components/auth/ProtectedRoute';
 import { LandingPage } from './pages/public/landing/LandingPage';
 import { LoginPage } from './pages/public/auth/LoginPage';
 import { TrackingPage } from './pages/public/tracking/TrackingPage';
+import { AboutPage } from './pages/public/about/AboutPage';
+import { ServicesPage } from './pages/public/services/ServicesPage';
 
 // Superadmin Pages (pages/superadmin/<fitur>/<isi_fitur>)
 import { AdminDashboardPage } from './pages/superadmin/dashboard/AdminDashboardPage';
@@ -38,6 +40,9 @@ function App() {
       <Routes>
         {/* Role: Public (Akses Umum) */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/tentang" element={<AboutPage />} />
+        <Route path="/layanan" element={<ServicesPage />} />
+        <Route path="/service" element={<Navigate to="/layanan" replace />} />
         <Route
           path="/login"
           element={
