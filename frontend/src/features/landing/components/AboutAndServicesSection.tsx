@@ -9,7 +9,7 @@ const ServiceOutlineIcon: React.FC<{ type: ServiceCardItem['iconType']; isDarkTe
   switch (type) {
     case 'washer':
       return (
-        <svg className="w-11 h-11" viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="1.6">
+        <svg aria-hidden="true" className="w-11 h-11" viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="1.6">
           <rect x="4" y="3" width="16" height="18" rx="2.5" />
           <line x1="4" y1="8" x2="20" y2="8" />
           <circle cx="12" cy="14.5" r="3.8" />
@@ -19,7 +19,7 @@ const ServiceOutlineIcon: React.FC<{ type: ServiceCardItem['iconType']; isDarkTe
       );
     case 'iron':
       return (
-        <svg className="w-11 h-11" viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="1.6">
+        <svg aria-hidden="true" className="w-11 h-11" viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="1.6">
           <path strokeLinecap="round" strokeLinejoin="round" d="M4 17h16l-2-7H9c-3 0-5 3-5 7z" />
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 10V7c0-1.1.9-2 2-2h5" />
           <line x1="3" y1="20" x2="21" y2="20" strokeLinecap="round" />
@@ -27,9 +27,9 @@ const ServiceOutlineIcon: React.FC<{ type: ServiceCardItem['iconType']; isDarkTe
       );
     case 'stain':
       return (
-        <svg className="w-11 h-11" viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="1.6">
+        <svg aria-hidden="true" className="w-11 h-11" viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="1.6">
           <path strokeLinecap="round" strokeLinejoin="round" d="M8 4l-5 4 2 3 3-2v11h8V9l3 2 2-3-5-4a4 4 0 01-8 0z" />
-          <path strokeLinecap="round" d="M14.5 12.5l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" />
+          <path strokeLinecap="round" d="M12 11v4M10 13h4" />
         </svg>
       );
   }
@@ -37,29 +37,29 @@ const ServiceOutlineIcon: React.FC<{ type: ServiceCardItem['iconType']; isDarkTe
 
 export const AboutAndServicesSection: React.FC = () => {
   return (
-    <section id="about" className="bg-white py-16 sm:py-24">
+    <section id="tentang" className="bg-white py-16 sm:py-24">
       <div className="max-w-5xl mx-auto px-5 sm:px-8 space-y-20">
         {/* Part 1: About Us Beyond Your Expectations */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
           {/* Left Column: Heading, Text & 800+ Stat */}
           <div className="md:col-span-5 space-y-5">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1A1918] tracking-tight leading-[1.15]">
-              About us beyond
+              Lebih dari sekadar
               <br />
-              your expectations
+              layanan cuci biasa
             </h2>
-            <p className="text-sm text-[#6E6A66] leading-relaxed">
-              NeatWash & kucek.id laundry service goes beyond expectations, combining modern garment care technology, hygiene assurance, and real-time order transparency.
+            <p className="text-sm text-[#57534E] leading-relaxed">
+              Layanan laundry kucek.id memastikan setiap potong pakaian dicuci dalam mesin terpisah, menggunakan air terfiltrasi, dan tercatat secara transparan dari kasir hingga rak pengambilan.
             </p>
 
             <div className="pt-2">
               <p className="text-4xl sm:text-5xl font-extrabold text-[#1A1918] tracking-tight">
                 800+
               </p>
-              <p className="text-xs sm:text-sm font-semibold text-[#5A5652] mt-1">
-                Happy Customers
+              <p className="text-xs sm:text-sm font-semibold text-[#57534E] mt-1">
+                Pelanggan rutin
                 <br />
-                per month
+                setiap bulan
               </p>
             </div>
           </div>
@@ -69,11 +69,13 @@ export const AboutAndServicesSection: React.FC = () => {
             {ABOUT_PHOTOS.map((photo) => (
               <div
                 key={photo.id}
-                className="overflow-hidden rounded-2xl bg-[#F4EDE5] aspect-[4/3] shadow-xs"
+                className="overflow-hidden rounded-2xl bg-[#F4EDE5] aspect-[4/3]"
               >
                 <img
                   src={photo.url}
                   alt={photo.alt}
+                  width={600}
+                  height={450}
                   loading="lazy"
                   className="w-full h-full object-cover hover:scale-105 transition duration-500"
                 />
@@ -85,11 +87,11 @@ export const AboutAndServicesSection: React.FC = () => {
         {/* Part 2: Expert Laundry Services Delivered Fresh */}
         <div className="space-y-10">
           <h2 className="text-center text-2xl sm:text-4xl font-extrabold text-[#1A1918] tracking-tight">
-            Expert laundry services delivered fresh
+            Layanan perawatan pakaian yang selalu segar
           </h2>
 
           {/* 3 Bold Colored Cards (Orange, Yellow, Blue) */}
-          <div className="grid grid-cols-3 gap-3 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
             {SERVICE_CARDS.map((card) => {
               const themeClasses = {
                 orange: 'bg-[#C8430E] text-white',
@@ -98,12 +100,12 @@ export const AboutAndServicesSection: React.FC = () => {
               }[card.theme];
 
               const descColor =
-                card.theme === 'yellow' ? 'text-[#3D3A36]' : 'text-white/85';
+                card.theme === 'yellow' ? 'text-[#2B2927]' : 'text-white/90';
 
               return (
                 <div
                   key={card.id}
-                  className={`${themeClasses} rounded-2xl sm:rounded-3xl p-4 sm:p-8 flex flex-col justify-between min-h-[170px] sm:min-h-[230px] shadow-sm hover:-translate-y-1 transition duration-300`}
+                  className={`${themeClasses} rounded-3xl p-6 sm:p-8 flex flex-col justify-between min-h-[190px] sm:min-h-[230px]`}
                 >
                   <div>
                     <ServiceOutlineIcon
@@ -112,11 +114,11 @@ export const AboutAndServicesSection: React.FC = () => {
                     />
                   </div>
 
-                  <div className="mt-6 sm:mt-10 space-y-1.5">
-                    <h3 className="text-sm sm:text-xl font-extrabold tracking-tight">
+                  <div className="mt-8 space-y-1.5">
+                    <h3 className="text-lg sm:text-xl font-extrabold tracking-tight">
                       {card.title}
                     </h3>
-                    <p className={`text-[11px] sm:text-xs leading-relaxed ${descColor}`}>
+                    <p className={`text-xs sm:text-sm leading-relaxed ${descColor}`}>
                       {card.description}
                     </p>
                   </div>

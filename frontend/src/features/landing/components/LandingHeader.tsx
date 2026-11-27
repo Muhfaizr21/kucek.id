@@ -1,56 +1,58 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
 
 export const LandingHeader: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="w-full bg-[#F4EDE5] sticky top-0 z-50 border-b border-[#E7DEC3]/40 backdrop-blur-sm">
-      <div className="max-w-6xl mx-auto px-5 sm:px-8 h-20 flex items-center justify-between">
-        {/* Brand Logo (NeatWash / kucek.id style) */}
+    <header className="w-full bg-[#F4EDE5] sticky top-0 z-50 border-b border-[#E5DCD2]/70">
+      <div className="max-w-5xl mx-auto px-5 sm:px-8 h-20 flex items-center justify-between">
+        {/* Brand Logo: kucek.id */}
         <Link
           to="/"
-          className="text-xl sm:text-2xl font-extrabold text-[#1A1918] tracking-tight flex items-center gap-1.5"
+          className="text-2xl font-extrabold text-[#1A1918] tracking-tight min-h-[44px] inline-flex items-center"
         >
-          <span>NeatWash</span>
-          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#C8430E]/10 text-[#C8430E]">
-            kucek.id
-          </span>
+          kucek<span className="text-[#C8430E]">.id</span>
         </Link>
 
-        {/* Center Navigation Links (Desktop) */}
-        <nav className="hidden md:flex items-center space-x-8 text-sm font-medium text-[#4A4643]">
+        {/* Center Navigation Links (Desktop: 4 items matching reference) */}
+        <nav
+          aria-label="Navigasi Utama"
+          className="hidden md:flex items-center space-x-8 text-sm font-medium text-[#4A4643]"
+        >
           <a
-            href="#home"
-            className="text-[#1A1918] font-semibold border-b-2 border-[#1A1918] pb-0.5"
+            href="#beranda"
+            className="text-[#1A1918] font-bold border-b-2 border-[#1A1918] py-1 min-h-[44px] inline-flex items-center"
           >
-            Home
+            Beranda
           </a>
-          <a href="#about" className="hover:text-[#1A1918] transition">
-            About us
+          <a
+            href="#tentang"
+            className="hover:text-[#1A1918] transition py-1 min-h-[44px] inline-flex items-center"
+          >
+            Tentang Kami
           </a>
-          <a href="#pricing" className="hover:text-[#1A1918] transition">
-            Pricing
+          <a
+            href="#paket"
+            className="hover:text-[#1A1918] transition py-1 min-h-[44px] inline-flex items-center"
+          >
+            Harga
           </a>
-          <a href="#calculator" className="hover:text-[#1A1918] transition">
-            Cek Resi & Kalkulator
+          <a
+            href="#kontak"
+            className="hover:text-[#1A1918] transition py-1 min-h-[44px] inline-flex items-center"
+          >
+            Kontak
           </a>
-          <Link to="/app" className="hover:text-[#C8430E] transition font-semibold">
-            Portal Pelanggan
-          </Link>
-          <Link to="/admin" className="hover:text-[#0D5CAD] transition font-semibold">
-            Superadmin
-          </Link>
         </nav>
 
-        {/* Right Sign Up Pill Button */}
-        <div className="hidden md:flex items-center gap-3">
+        {/* Right Action Button */}
+        <div className="hidden md:flex items-center">
           <Link
             to="/login"
-            className="px-6 py-2.5 rounded-full bg-[#C8430E] hover:bg-[#B0390B] text-white text-sm font-semibold shadow-sm transition active:scale-95"
+            className="px-6 py-2.5 min-h-[44px] inline-flex items-center justify-center rounded-full bg-[#C8430E] hover:bg-[#AD380A] active:bg-[#932F08] text-white text-sm font-bold transition"
           >
-            Sign up
+            Daftar Akun
           </Link>
         </div>
 
@@ -58,68 +60,66 @@ export const LandingHeader: React.FC = () => {
         <button
           type="button"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 rounded-lg text-[#1A1918] hover:bg-[#E8DFD5] transition"
-          aria-label="Toggle Menu"
+          aria-label={mobileMenuOpen ? 'Tutup menu navigasi' : 'Buka menu navigasi'}
+          aria-expanded={mobileMenuOpen}
+          className="md:hidden min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-xl text-[#1A1918] hover:bg-[#E8DFD5] active:bg-[#DDD2C5] transition"
         >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          {mobileMenuOpen ? (
+            <svg aria-hidden="true" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg aria-hidden="true" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          )}
         </button>
       </div>
 
       {/* Mobile Dropdown Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#F4EDE5] border-t border-[#E5DCD2] px-6 py-5 space-y-3">
+        <nav
+          aria-label="Navigasi Seluler"
+          className="md:hidden bg-[#F4EDE5] border-t border-[#E5DCD2] px-6 py-4 space-y-1"
+        >
           <a
-            href="#home"
+            href="#beranda"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-sm font-bold text-[#1A1918]"
+            className="flex items-center min-h-[44px] text-sm font-bold text-[#1A1918]"
           >
-            Home
+            Beranda
           </a>
           <a
-            href="#about"
+            href="#tentang"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-sm font-medium text-[#4A4643]"
+            className="flex items-center min-h-[44px] text-sm font-medium text-[#4A4643]"
           >
-            About us
+            Tentang Kami
           </a>
           <a
-            href="#pricing"
+            href="#paket"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-sm font-medium text-[#4A4643]"
+            className="flex items-center min-h-[44px] text-sm font-medium text-[#4A4643]"
           >
-            Pricing
+            Harga
           </a>
           <a
-            href="#calculator"
+            href="#kontak"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-sm font-medium text-[#4A4643]"
+            className="flex items-center min-h-[44px] text-sm font-medium text-[#4A4643]"
           >
-            Cek Resi & Kalkulator
+            Kontak
           </a>
-          <div className="pt-2 border-t border-[#E5DCD2] flex flex-col gap-2">
-            <Link
-              to="/app"
-              className="text-sm font-semibold text-[#C8430E]"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Portal Pelanggan (/app)
-            </Link>
-            <Link
-              to="/admin"
-              className="text-sm font-semibold text-[#0D5CAD]"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Dashboard Superadmin (/admin)
-            </Link>
+          <div className="pt-3 border-t border-[#E5DCD2]">
             <Link
               to="/login"
               onClick={() => setMobileMenuOpen(false)}
-              className="mt-1 w-full py-2.5 rounded-full bg-[#C8430E] text-white text-center text-sm font-semibold"
+              className="w-full min-h-[44px] inline-flex items-center justify-center rounded-full bg-[#C8430E] hover:bg-[#AD380A] text-white text-sm font-bold"
             >
-              Sign up
+              Daftar Akun
             </Link>
           </div>
-        </div>
+        </nav>
       )}
     </header>
   );

@@ -3,55 +3,65 @@ import { Link } from 'react-router-dom';
 
 export const LandingFooter: React.FC = () => {
   return (
-    <footer id="contact" className="bg-[#1A1918] text-white py-14">
+    <footer id="kontak" className="bg-[#1A1918] text-white py-14">
       <div className="max-w-5xl mx-auto px-5 sm:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-10 border-b border-white/10">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-10 border-b border-white/15">
           <div className="md:col-span-5 space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-extrabold tracking-tight">NeatWash</span>
-              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#C8430E] text-white">
-                kucek.id
-              </span>
-            </div>
-            <p className="text-xs text-white/65 leading-relaxed max-w-sm">
-              Delivering excellence every step ahead. Modern laundry management with live tracking, door-to-door pickup, and subscription quota packages.
+            <Link to="/" className="text-2xl font-extrabold tracking-tight inline-block">
+              kucek<span className="text-[#FDBE1A]">.id</span>
+            </Link>
+            <p className="text-xs text-white/75 leading-relaxed max-w-sm">
+              Layanan laundry kiloan dan satuan dengan pencucian terpisah per pelanggan, setrika uap, penjemputan ke rumah, serta pelacakan status nota secara langsung.
             </p>
           </div>
 
           <div className="md:col-span-3 space-y-2.5 text-xs">
-            <p className="font-extrabold uppercase tracking-wider text-white/40">Quick Navigation</p>
-            <ul className="space-y-2 text-white/75">
-              <li><a href="#home" className="hover:text-white transition">Home</a></li>
-              <li><a href="#about" className="hover:text-white transition">About Us</a></li>
-              <li><a href="#pricing" className="hover:text-white transition">Pricing Packages</a></li>
-              <li><Link to="/track/KCK-202611-001" className="hover:text-[#FDBE1A] transition">Live Order Tracking</Link></li>
+            <p className="font-extrabold uppercase tracking-wider text-white/60">Navigasi</p>
+            <ul className="space-y-2 text-white/80">
+              <li>
+                <a href="#beranda" className="hover:text-white transition inline-block py-1">
+                  Beranda
+                </a>
+              </li>
+              <li>
+                <a href="#tentang" className="hover:text-white transition inline-block py-1">
+                  Tentang Kami
+                </a>
+              </li>
+              <li>
+                <a href="#paket" className="hover:text-white transition inline-block py-1">
+                  Paket Harga
+                </a>
+              </li>
+              <li>
+                <a href="#lacak" className="hover:text-[#FDBE1A] transition inline-block py-1">
+                  Cek Resi & Kalkulator
+                </a>
+              </li>
             </ul>
           </div>
 
           <div className="md:col-span-4 space-y-2.5 text-xs">
-            <p className="font-extrabold uppercase tracking-wider text-white/40">Platform Portals (2 Active Roles)</p>
-            <div className="flex flex-col gap-2 pt-1">
+            <p className="font-extrabold uppercase tracking-wider text-white/60">Alamat & Jam Operasional</p>
+            <p className="text-white/80 leading-relaxed">
+              Jl. Dipatiukur No. 45, Coblong, Kota Bandung
+              <br />
+              Buka Setiap Hari: 07.00 - 21.00 WIB (Pelacakan Online 24 Jam)
+            </p>
+            <div className="pt-2">
               <Link
-                to="/app"
-                className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold flex items-center justify-between transition"
+                to="/login"
+                className="px-5 min-h-[44px] inline-flex items-center justify-center rounded-full bg-[#C8430E] hover:bg-[#AD380A] text-white font-bold transition"
               >
-                <span>Portal Pelanggan (Self-Service)</span>
-                <span>&rarr;</span>
-              </Link>
-              <Link
-                to="/admin"
-                className="px-4 py-2.5 rounded-xl bg-[#C8430E] hover:bg-[#B0390B] text-white font-bold flex items-center justify-between transition"
-              >
-                <span>Dashboard Superadmin (POS & Kanban)</span>
-                <span>&rarr;</span>
+                Masuk / Daftar Akun
               </Link>
             </div>
           </div>
         </div>
 
-        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-white/50 gap-2">
-          <p>&copy; {new Date().getFullYear()} NeatWash • kucek.id Laundry Platform. All rights reserved.</p>
-          <p>Clean Code & SOLID Architecture • Golang + React.js</p>
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-white/60 gap-2">
+          <p>&copy; {new Date().getFullYear()} kucek.id. Seluruh hak cipta dilindungi.</p>
+          <p>Layanan Laundry Kiloan, Satuan & Antar-Jemput</p>
         </div>
       </div>
     </footer>

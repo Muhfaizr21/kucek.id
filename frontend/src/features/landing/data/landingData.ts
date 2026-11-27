@@ -49,7 +49,7 @@ export interface PricingPackageItem {
   name: string;
   subtitle: string;
   priceDisplay: string;
-  priceIdr: string;
+  priceDetail: string;
   period: string;
   isFeatured: boolean;
   features: string[];
@@ -65,25 +65,25 @@ export const HERO_HIGHLIGHTS: HeroHighlight[] = [
   {
     id: 'hl-1',
     iconType: 'garment',
-    text: 'Soft, fresh, and revitalized garments',
+    text: 'Pakaian lembut, segar, dan kembali terawat',
     position: 'left',
   },
   {
     id: 'hl-2',
     iconType: 'dryclean',
-    text: 'Expertly dry-cleaned for pristine results',
+    text: 'Pencucian terstandar untuk hasil bersih menyeluruh',
     position: 'left',
   },
   {
     id: 'hl-3',
     iconType: 'delicate',
-    text: 'Delicate fabrics treated with expertise',
+    text: 'Serat kain sensitif ditangani dengan teliti',
     position: 'right',
   },
   {
     id: 'hl-4',
     iconType: 'clock24',
-    text: '24 Hours Reception is open',
+    text: 'Layanan penerimaan & pelacakan buka 24 jam',
     position: 'right',
   },
 ];
@@ -92,44 +92,44 @@ export const ABOUT_PHOTOS = [
   {
     id: 'ab-1',
     url: 'https://images.unsplash.com/photo-1582735689369-4fe89db7114c?auto=format&fit=crop&w=600&q=80',
-    alt: 'Checking clean garments on rack',
+    alt: 'Pemeriksaan kerapian pakaian di rak gantung kucek.id',
   },
   {
     id: 'ab-2',
     url: 'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?auto=format&fit=crop&w=600&q=80',
-    alt: 'Steam ironing fresh clothes',
+    alt: 'Proses setrika uap pakaian oleh staf kucek.id',
   },
   {
     id: 'ab-3',
     url: 'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&w=600&q=80',
-    alt: 'Loading front-load washing machine',
+    alt: 'Memasukkan pakaian ke mesin cuci bukaan depan',
   },
   {
     id: 'ab-4',
     url: 'https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?auto=format&fit=crop&w=600&q=80',
-    alt: 'Smiling staff with laundry basket',
+    alt: 'Staf kucek.id membawa keranjang pakaian bersih',
   },
 ];
 
 export const SERVICE_CARDS: ServiceCardItem[] = [
   {
     id: 'srv-1',
-    title: 'Quick Wash',
-    description: 'Up soft, fresh, and washing garments.',
+    title: 'Cuci Cepat',
+    description: 'Pakaian harian dicuci bersih, dikeringkan, dan dilipat rapi.',
     theme: 'orange',
     iconType: 'washer',
   },
   {
     id: 'srv-2',
-    title: 'Fresh Press',
-    description: 'Expertly dry-cleaned for her pristine results.',
+    title: 'Setrika Uap',
+    description: 'Setrika uap suhu terkontrol agar pakaian licin tanpa merusak serat.',
     theme: 'yellow',
     iconType: 'iron',
   },
   {
     id: 'srv-3',
-    title: 'Stain Removal',
-    description: 'Stain removal, treated stain-with expertise.',
+    title: 'Angkat Noda',
+    description: 'Pembersihan noda membandel dengan cairan khusus ramah kain.',
     theme: 'blue',
     iconType: 'stain',
   },
@@ -138,53 +138,53 @@ export const SERVICE_CARDS: ServiceCardItem[] = [
 export const TIMELINE_MILESTONES: TimelineMilestone[] = [
   {
     id: 'tm-1',
-    title: 'Foundation',
-    description: 'We received the foundation for first company.',
+    title: 'Langkah Awal',
+    description: 'Memulai operasional workshop pertama dengan standar pencucian terpisah.',
     imageUrl: 'https://images.unsplash.com/photo-1556740758-90de374c12ad?auto=format&fit=crop&w=600&q=80',
-    imageAlt: 'Foundation packing and folding clothes',
+    imageAlt: 'Penataan dan pengemasan pakaian di awal berdirinya kucek.id',
   },
   {
     id: 'tm-2',
-    title: 'Local launch',
-    description: 'Laundromats local launch, consistency, and first launch.',
+    title: 'Hadir di Lingkunganmu',
+    description: 'Membuka layanan antar-jemput lokal untuk area tempat tinggal dan kos.',
     imageUrl: 'https://images.unsplash.com/photo-1521656693074-0ef32e80a5d5?auto=format&fit=crop&w=600&q=80',
-    imageAlt: 'Local laundromat launch with machines',
+    imageAlt: 'Deretan mesin cuci komersial di outlet kucek.id',
   },
   {
     id: 'tm-3',
-    title: 'Current maturity',
-    description: 'Now current the growth and stronger company.',
+    title: 'Standar Kematangan',
+    description: 'Setiap mesin melewati sterilisasi rutin dengan takaran deterjen terukur.',
     imageUrl: 'https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?auto=format&fit=crop&w=600&q=80',
-    imageAlt: 'Modern washing machines in operation',
+    imageAlt: 'Pengoperasian mesin pencucian dan pengeringan modern',
   },
   {
     id: 'tm-4',
-    title: 'Service innovation',
-    description: 'Service innovation to service for a laundry and service.',
+    title: 'Inovasi Layanan',
+    description: 'Pelacakan status nota secara langsung dan sistem kuota langganan kiloan.',
     imageUrl: 'https://images.unsplash.com/photo-1567113463300-102a7eb3cb26?auto=format&fit=crop&w=600&q=80',
-    imageAlt: 'Innovative laundry sorting shelves',
+    imageAlt: 'Penyortiran pakaian bersih berdasarkan nomor nota pelanggan',
   },
 ];
 
 export const PROCESS_STEPS: ProcessStepItem[] = [
   {
     stepNumber: 1,
-    text: 'Soft, fresh, and revitalized garments',
+    text: 'Pakaian diterima, ditimbang, dan dicatat kondisinya',
     badgeColor: 'orange',
   },
   {
     stepNumber: 2,
-    text: 'Expertly dry-cleaned for pristine results',
+    text: 'Dicuci terpisah per pelanggan tanpa dicampur',
     badgeColor: 'yellow',
   },
   {
     stepNumber: 3,
-    text: 'Delicate fabrics treated with expertise',
+    text: 'Setrika uap rapi dengan aroma parfum pilihanmu',
     badgeColor: 'taupe',
   },
   {
     stepNumber: 4,
-    text: 'Our easy process for fresh laundry every time',
+    text: 'Dikemas bersih dan siap diambil atau diantar',
     badgeColor: 'blue',
   },
 ];
@@ -193,56 +193,56 @@ export const TEAM_EXPERTS: TeamExpert[] = [
   {
     id: 'exp-1',
     name: 'Arif Pratama',
-    role: 'Head of Wash Quality',
+    role: 'Kepala Kualitas Cuci',
     avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
     bgClass: 'bg-[#DCE8F5]',
   },
   {
     id: 'exp-2',
     name: 'Rina Wijaya',
-    role: 'Fabric Care Specialist',
+    role: 'Spesialis Serat Kain',
     avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
     bgClass: 'bg-[#E8E4DF]',
   },
   {
     id: 'exp-3',
     name: 'Siti Nurhaliza',
-    role: 'Steam Press Expert',
+    role: 'Ahli Setrika Uap',
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80',
     bgClass: 'bg-[#F0EAE2]',
   },
   {
     id: 'exp-4',
     name: 'Maya Putri',
-    role: 'Dry Clean Master',
+    role: 'Spesialis Dry Clean',
     avatarUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80',
     bgClass: 'bg-[#1D4E89]',
   },
   {
     id: 'exp-5',
     name: 'Budi Santoso',
-    role: 'Stain Removal Specialist',
+    role: 'Penanganan Noda',
     avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80',
     bgClass: 'bg-[#D6E4F0]',
   },
   {
     id: 'exp-6',
     name: 'Hendra Kusuma',
-    role: 'Quality Control Lead',
+    role: 'Pemeriksa Kelengkapan',
     avatarUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80',
     bgClass: 'bg-[#E5E0DA]',
   },
   {
     id: 'exp-7',
     name: 'Dewi Lestari',
-    role: 'Aroma & Finishing',
+    role: 'Pewangi & Pengemasan',
     avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80',
     bgClass: 'bg-[#EFECE8]',
   },
   {
     id: 'exp-8',
     name: 'Nadia Safitri',
-    role: 'Customer Care Lead',
+    role: 'Koordinator Antar-Jemput',
     avatarUrl: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=300&q=80',
     bgClass: 'bg-[#1B5299]',
   },
@@ -252,18 +252,18 @@ export const TESTIMONIALS: TestimonialItem[] = [
   {
     id: 'tst-1',
     name: 'Marina Sari',
-    role: 'Regular Customer & Member',
+    role: 'Pelanggan Paket 30 Kg',
     quote:
-      'Their attention to detail is unmatched! Every shirt comes back crisp, smelling like Sakura Blossom, and neatly folded. Live tracking makes it so effortless.',
+      'Setiap kemeja kerja kembali dalam keadaan rapi, harum Sakura Blossom, dan lipatannya presisi. Bisa cek status cucian dari HP bikin tenang.',
     avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
     rating: 5,
   },
   {
     id: 'tst-2',
     name: 'Kevin Dirgantara',
-    role: '50Kg Package Subscriber',
+    role: 'Pelanggan Paket 50 Kg',
     quote:
-      'Booking pickup from my apartment takes 20 seconds. The quota subscription saves me 30% every month and the 24-hour guarantee gives total peace of mind.',
+      'Pesan penjemputan dari kos sangat praktis. Kuota kiloan memotong pengeluaran laundry bulanan saya dan jadwal selesainya selalu tepat waktu.',
     avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
     rating: 5,
   },
@@ -272,47 +272,47 @@ export const TESTIMONIALS: TestimonialItem[] = [
 export const PRICING_PACKAGES: PricingPackageItem[] = [
   {
     id: 'pkg-quick',
-    name: 'Quick Wash',
-    subtitle: 'Daily garment wash & fold',
-    priceDisplay: '$70',
-    priceIdr: 'Rp180.000 / 30 Kg',
-    period: '/month package',
+    name: 'Cuci Cepat',
+    subtitle: 'Paket hemat anak kos & harian',
+    priceDisplay: 'Rp180rb',
+    priceDetail: 'Kuota 30 Kg (Rp6.000/kg)',
+    period: '/ 30 hari',
     isFeatured: true,
     features: [
-      '30 Kg monthly laundry quota',
-      'Wash, dry & neat fold included',
-      'Free premium perfume choice',
-      'Real-time WhatsApp & web tracking',
+      'Kuota cuci kering lipat 30 Kg',
+      'Bebas pilih 5 aroma parfum',
+      'Pencucian 1 mesin 1 pelanggan',
+      'Pantau status nota via web & WA',
     ],
   },
   {
     id: 'pkg-press',
-    name: 'Fresh Press',
-    subtitle: 'Full wash + steam ironing',
-    priceDisplay: '$78',
-    priceIdr: 'Rp300.000 / 50 Kg',
-    period: '/month package',
+    name: 'Setrika Rapi',
+    subtitle: 'Cuci komplit + setrika uap',
+    priceDisplay: 'Rp300rb',
+    priceDetail: 'Kuota 50 Kg (Rp6.000/kg)',
+    period: '/ 45 hari',
     isFeatured: false,
     features: [
-      '50 Kg monthly laundry quota',
-      'Professional steam ironing & hanger',
-      'Free pickup & delivery radius 3 km',
-      'Priority 24-hour turnaround option',
+      'Kuota cuci + setrika uap 50 Kg',
+      'Gratis antar-jemput radius 3 km',
+      'Opsi gantung hanger untuk kemeja',
+      'Prioritas pengerjaan lebih cepat',
     ],
   },
   {
     id: 'pkg-stain',
-    name: 'Stain Removal',
-    subtitle: 'Family & executive care',
-    priceDisplay: '$170',
-    priceIdr: 'Rp550.000 / 100 Kg',
-    period: '/60 days package',
+    name: 'Paket Keluarga',
+    subtitle: 'Perawatan lengkap rumah tangga',
+    priceDisplay: 'Rp550rb',
+    priceDetail: 'Kuota 100 Kg (Rp5.500/kg)',
+    period: '/ 60 hari',
     isFeatured: false,
     features: [
-      '100 Kg family quota (60 days validity)',
-      'Deep stain & delicate fabric treatment',
-      'Bedcover & suit dry-clean discount',
-      'Dedicated VIP courier pickup',
+      'Kuota keluarga 100 Kg berlaku 60 hari',
+      'Termasuk pembersihan noda ringan',
+      'Potongan khusus cuci bedcover & jas',
+      'Jadwal jemput rutin mingguan',
     ],
   },
 ];
@@ -320,26 +320,26 @@ export const PRICING_PACKAGES: PricingPackageItem[] = [
 export const EXPERIENCE_BENEFITS: ExperienceBenefitItem[] = [
   {
     number: 1,
-    title: 'This convenient pick & delivery experience here',
+    title: 'Layanan jemput dan antar langsung ke depan pintu',
     description:
-      'Schedule door-to-door pickup directly from your smartphone. Our courier arrives on time at your home, boarding house, or office.',
+      'Atur jadwal penjemputan dari ponselmu. Kurir kami mengambil pakaian kotor dari rumah, kos, atau apartemen sesuai slot waktu yang kamu pilih.',
   },
   {
     number: 2,
-    title: 'Minimize care around expert fabric stain cleaning here',
+    title: 'Pencatatan kondisi awal pakaian yang transparan',
     description:
-      'Every garment is inspected and photographed at check-in so delicate fibers and tough stains get the exact treatment they need.',
+      'Setiap pakaian diperiksa dan difoto saat masuk kasir, sehingga bahan sensitif maupun noda khusus ditangani dengan tepat sejak awal.',
   },
   {
     number: 3,
-    title: 'Eco-safe gentle soaps and freshly scented garments',
+    title: 'Deterjen lembut ramah kulit dan parfum tahan lama',
     description:
-      'We use hypoallergenic detergents and 5 signature long-lasting perfumes—from Sakura Blossom to Ocean Fresh.',
+      'Menggunakan deterjen hipoalergenik serta 5 pilihan aroma khas mulai dari Sakura Blossom, Lavender Breeze, hingga Ocean Fresh.',
   },
   {
     number: 4,
-    title: 'Maximize your laundry experience here',
+    title: 'Pantau setiap tahap pencucian secara langsung',
     description:
-      'Monitor every stage from Washing, Drying, Steam Ironing, to QC Packing live via your receipt code without any hassle.',
+      'Lihat posisi cucianmu mulai dari antrean cuci, pengeringan, setrika uap, hingga siap diambil hanya dengan memasukkan nomor nota.',
   },
 ];
