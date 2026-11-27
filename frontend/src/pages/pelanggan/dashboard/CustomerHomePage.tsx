@@ -594,7 +594,7 @@ export const CustomerHomePage: React.FC = () => {
         {/* ROW 3: Progres Antar-Jemput (5 Cols) + Rincian Nota & Kuota Cucian (7 Cols) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
           {/* Left 5 Cols: Progres Antar-Jemput */}
-          <div className="lg:col-span-5 bg-white rounded-2xl p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between">
+          <div className="lg:col-span-5 bg-white rounded-2xl p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-start">
             <div className="flex items-start justify-between gap-2">
               <div>
                 <h2 className="text-[17px] font-extrabold text-[#111827] tracking-tight">
@@ -612,7 +612,7 @@ export const CustomerHomePage: React.FC = () => {
               </Link>
             </div>
 
-            <div className="mt-5 space-y-3">
+            <div className="mt-4 space-y-3">
               {deliveryProgressCards.map((item) => (
                 <div
                   key={item.id}
@@ -651,7 +651,7 @@ export const CustomerHomePage: React.FC = () => {
           </div>
 
           {/* Right 7 Cols: Rincian Nota & Kuota Cucian */}
-          <div className="lg:col-span-7 bg-white rounded-2xl p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between">
+          <div className="lg:col-span-7 bg-white rounded-2xl p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-start">
             <div className="flex items-start justify-between gap-2">
               <div>
                 <h2 className="text-[17px] font-extrabold text-[#111827] tracking-tight">
