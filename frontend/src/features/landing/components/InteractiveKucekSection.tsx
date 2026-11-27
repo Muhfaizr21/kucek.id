@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { CustomSelect, type SelectOption } from '../../../components/ui/Select';
+
+const LANDING_PERFUME_OPTIONS: SelectOption[] = [
+  { value: 'Sakura Blossom', label: '🌸 Sakura Blossom', description: 'Floral lembut khas musim semi Jepang', badge: 'Favorit' },
+  { value: 'Lavender Breeze', label: '🪻 Lavender Breeze', description: 'Relaksasi aroma lavender segar alami' },
+  { value: 'Ocean Fresh', label: '🌊 Ocean Fresh', description: 'Kesegaran semilir laut maskulin tahan lama' },
+  { value: 'Sweet Vanilla', label: '🍦 Sweet Vanilla', description: 'Wangi manis hangat mewah yang elegan' },
+  { value: 'Tanpa Parfum (Ramah Bayi)', label: '🍃 Tanpa Parfum (Ramah Bayi)', description: 'Hypoallergenic untuk kulit bayi sensitif', badge: 'Baby Safe' },
+];
 
 interface TrackSampleRecord {
   code: string;
@@ -287,24 +296,13 @@ export const InteractiveKucekSection: React.FC = () => {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="perfume-select"
-                    className="block text-xs font-bold text-[#1A1918] mb-1.5"
-                  >
-                    Pilihan Aroma Parfum
-                  </label>
-                  <select
-                    id="perfume-select"
+                  <CustomSelect
+                    label="Pilihan Aroma Parfum"
                     value={perfume}
-                    onChange={(e) => setPerfume(e.target.value)}
-                    className="w-full min-h-[44px] px-3.5 py-2 rounded-xl bg-[#FAF7F2] border border-[#D8CFC4] text-xs font-bold text-[#1A1918]"
-                  >
-                    <option value="Sakura Blossom">Sakura Blossom</option>
-                    <option value="Lavender Breeze">Lavender Breeze</option>
-                    <option value="Ocean Fresh">Ocean Fresh</option>
-                    <option value="Sweet Vanilla">Sweet Vanilla</option>
-                    <option value="Tanpa Parfum (Ramah Bayi)">Tanpa Parfum (Ramah Bayi)</option>
-                  </select>
+                    onChange={(val) => setPerfume(val)}
+                    options={LANDING_PERFUME_OPTIONS}
+                    size="sm"
+                  />
                 </div>
               </div>
             </div>

@@ -1,10 +1,25 @@
 import React, { useState } from 'react';
 import { AdminLayout } from '../../../components/layout/AdminLayout';
+import { CustomSelect, type SelectOption } from '../../../components/ui/Select';
 import { 
   Printer, 
   Save, 
   Trash2
 } from 'lucide-react';
+
+const POS_PERFUME_OPTIONS: SelectOption[] = [
+  { value: 'Sakura Blossom', label: '🌸 Sakura Blossom', badge: 'Favorit', description: 'Floral lembut khas musim semi Jepang' },
+  { value: 'Lavender Breeze', label: '🪻 Lavender Breeze', description: 'Aromaterapi lavender segar menenangkan' },
+  { value: 'Ocean Fresh', label: '🌊 Ocean Fresh', description: 'Aroma segar semilir laut tahan lama' },
+  { value: 'Sweet Vanilla', label: '🍦 Sweet Vanilla', description: 'Wangi manis lembut elegan' },
+  { value: 'Non-Parfum', label: '🍃 Baby Safe (Tanpa Parfum)', badge: 'Sensitif', description: 'Bebas wewangian untuk bayi & kulit alergi' },
+];
+
+const POS_DURATION_OPTIONS: SelectOption[] = [
+  { value: 'REGULAR', label: 'Reguler (2-3 Hari)', description: 'Standar pengerjaan workshop normal' },
+  { value: 'FAST', label: 'Kilat (1 Hari)', description: '+Rp 3.000 / Kg prioritas pengerjaan', badge: '+Rp3rb' },
+  { value: 'EXPRESS', label: 'Express (5 Jam)', description: 'Prioritas tertinggi mesin cuci & setrika langsung', badge: 'Super Kilat' },
+];
 
 interface CartItem {
   id: string;
@@ -162,31 +177,23 @@ export const AdminPosPage: React.FC = () => {
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">4. Aroma Parfum & Durasi</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Aroma Parfum</label>
-                  <select
+                  <CustomSelect
+                    label="Aroma Parfum"
                     value={perfume}
-                    onChange={(e) => setPerfume(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-semibold"
-                  >
-                    <option value="Sakura Blossom">🌸 Sakura Blossom (Favorit)</option>
-                    <option value="Lavender Breeze">🪻 Lavender Breeze</option>
-                    <option value="Ocean Fresh">🌊 Ocean Fresh</option>
-                    <option value="Sweet Vanilla">🍦 Sweet Vanilla</option>
-                    <option value="Non-Parfum">Baby Safe (Tanpa Parfum)</option>
-                  </select>
+                    onChange={(val) => setPerfume(val)}
+                    options={POS_PERFUME_OPTIONS}
+                    size="sm"
+                  />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Durasi Pengerjaan</label>
-                  <select
+                  <CustomSelect
+                    label="Durasi Pengerjaan"
                     value={duration}
-                    onChange={(e) => setDuration(e.target.value as any)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-semibold"
-                  >
-                    <option value="REGULAR">Reguler (2-3 Hari)</option>
-                    <option value="FAST">Kilat (1 Hari) +Rp3rb/kg</option>
-                    <option value="EXPRESS">Express (5 Jam) 2x Lipat</option>
-                  </select>
+                    onChange={(val) => setDuration(val as any)}
+                    options={POS_DURATION_OPTIONS}
+                    size="sm"
+                  />
                 </div>
               </div>
 

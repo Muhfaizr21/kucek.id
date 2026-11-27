@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { CustomerLayout } from '../../../components/layout/CustomerLayout';
+import { CustomSelect, type SelectOption } from '../../../components/ui/Select';
 import {
   Truck,
   MapPin,
   Clock,
   CheckCircle2,
-  Sparkles,
   Scale,
   Calendar,
   Loader2,
@@ -17,6 +17,52 @@ import {
 } from 'lucide-react';
 import { getAuthToken } from '../../../services/authService';
 import type { CustomerVoucherClaim, VoucherItem } from '../voucher/CustomerVoucherPage';
+
+const SERVICE_OPTIONS: SelectOption[] = [
+  {
+    value: 'kiloan',
+    label: 'Cuci Setrika Kiloan Reguler',
+    description: 'Pencucian higienis 1 mesin 1 pelanggan + setrika uap rapi (Rp 8.000 / Kg)',
+    badge: 'Rp 8.000/Kg',
+  },
+  {
+    value: 'express',
+    label: 'Cuci Setrika Express 24 Jam',
+    description: 'Selesai 24 jam dengan prioritas mesin & antar-jemput ekspres (Rp 12.000 / Kg)',
+    badge: 'Express 24J',
+  },
+  {
+    value: 'satuan',
+    label: 'Dry Clean & Bed Cover Satuan',
+    description: 'Treatment deep clean bed cover, jas, kebaya, dan sepatu (Rp 25.000 / Pcs)',
+    badge: 'Satuan / Pcs',
+  },
+];
+
+const PERFUME_OPTIONS: SelectOption[] = [
+  {
+    value: 'ocean_fresh',
+    label: 'Ocean Fresh',
+    description: 'Aroma segar semilir angin laut yang maskulin & tahan 14 hari',
+    badge: 'Terfavorit',
+  },
+  {
+    value: 'sakura_blossom',
+    label: 'Sakura Blossom',
+    description: 'Keharuman kelopak bunga sakura musim semi Jepang yang lembut & elegan',
+    badge: 'Best Seller',
+  },
+  {
+    value: 'vanilla_mist',
+    label: 'Vanilla Mist',
+    description: 'Aroma vanila manis lembut, hangat, dan menenangkan',
+  },
+  {
+    value: 'lavender_calm',
+    label: 'Lavender Calm',
+    description: 'Essential oil relaksasi alami, sangat nyaman untuk sprei & selimut',
+  },
+];
 
 export const CustomerPickupPage: React.FC = () => {
   const navigate = useNavigate();
@@ -387,34 +433,23 @@ export const CustomerPickupPage: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-xs font-extrabold text-[#111827] mb-2">
-                  Kategori Layanan
-                </label>
-                <select
+                <CustomSelect
+                  label="Kategori Layanan"
                   value={serviceType}
-                  onChange={(e) => setServiceType(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#F5F7FA] text-xs font-bold text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#0095FF]"
-                >
-                  <option value="kiloan">Cuci Setrika Kiloan Reguler (Rp 8.000 / Kg)</option>
-                  <option value="express">Cuci Setrika Express 24 Jam (Rp 12.000 / Kg)</option>
-                  <option value="satuan">Dry Clean & Bed Cover Satuan (Rp 25.000 / Pcs)</option>
-                </select>
+                  onChange={(val) => setServiceType(val)}
+                  options={SERVICE_OPTIONS}
+                  size="md"
+                />
               </div>
 
               <div>
-                <label className="text-xs font-extrabold text-[#111827] mb-2 flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-[#0095FF]" /> Karakter Aroma Parfum
-                </label>
-                <select
+                <CustomSelect
+                  label="Karakter Aroma Parfum"
                   value={perfume}
-                  onChange={(e) => setPerfume(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#F5F7FA] text-xs font-bold text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#0095FF]"
-                >
-                  <option value="ocean_fresh">Ocean Fresh (Segar & Maskulin)</option>
-                  <option value="sakura_blossom">Sakura Blossom (Floral Lembut)</option>
-                  <option value="vanilla_mist">Vanilla Mist (Manis & Hangat)</option>
-                  <option value="lavender_calm">Lavender Calm (Relaksasi Tidur)</option>
-                </select>
+                  onChange={(val) => setPerfume(val)}
+                  options={PERFUME_OPTIONS}
+                  size="md"
+                />
               </div>
             </div>
 

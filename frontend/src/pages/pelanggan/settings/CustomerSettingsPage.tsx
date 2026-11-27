@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { CustomerLayout } from '../../../components/layout/CustomerLayout';
+import { CustomSelect, type SelectOption } from '../../../components/ui/Select';
 import {
   Camera,
   User,
@@ -33,6 +34,73 @@ interface SavedAddress {
   landmark: string;
   isPrimary: boolean;
 }
+
+const AREA_OPTIONS: SelectOption[] = [
+  {
+    value: 'Sleman (Zona Gratis Ongkir)',
+    label: 'Sleman (Zona Gratis Ongkir)',
+    description: 'Area Sleman & kawasan kampus (UGM, UNY, UPN, UII, YKPN)',
+    badge: 'Gratis Ongkir',
+  },
+  {
+    value: 'Kota Yogyakarta (Zona Gratis Ongkir)',
+    label: 'Kota Yogyakarta (Zona Gratis Ongkir)',
+    description: 'Malioboro, Danurejan, Gondokusuman, Umbulharjo, Kotagede',
+    badge: 'Gratis Ongkir',
+  },
+  {
+    value: 'Bantul Utara (Gratis Min. 5 Kg)',
+    label: 'Bantul Utara (Gratis Min. 5 Kg)',
+    description: 'Sewon, Banguntapan, Kasihan (Gratis penjemputan min. 5 Kg)',
+    badge: 'Min. 5 Kg',
+  },
+];
+
+const SCENT_OPTIONS: SelectOption[] = [
+  {
+    value: 'ocean_fresh',
+    label: 'Ocean Fresh',
+    description: 'Segar semilir angin laut, tahan hingga 14 hari di lemari',
+    badge: 'Terfavorit',
+  },
+  {
+    value: 'sakura_blossom',
+    label: 'Sakura Blossom',
+    description: 'Aroma floral lembut khas musim semi Jepang yang manis & elegan',
+    badge: 'Best Seller',
+  },
+  {
+    value: 'vanilla_mist',
+    label: 'Vanilla Mist',
+    description: 'Sentuhan vanila hangat dan menenangkan, tidak menyengat di hidung',
+  },
+  {
+    value: 'lavender_calm',
+    label: 'Lavender Calm',
+    description: 'Essential oil lavender penenang, cocok untuk sprei & piyama tidur',
+  },
+  {
+    value: 'no_perfume',
+    label: 'Tanpa Parfum (Hypoallergenic)',
+    description: 'Dibilas murni bebas pewangi sintetis, sangat aman untuk bayi & kulit sensitif',
+    badge: 'Baby Safe',
+  },
+];
+
+const PACKAGING_OPTIONS: SelectOption[] = [
+  {
+    value: 'lipat_rapi',
+    label: 'Lipat Rapi Presisi + Kemas Kedap Debu',
+    description: 'Dilipat presisi mesin uap dan disegel plastik higienis per pelanggan',
+    badge: 'Standar Pabrik',
+  },
+  {
+    value: 'hanger_kemeja',
+    label: 'Gantung Hanger (Kemeja & Gamis) + Lipat Kaos',
+    description: 'Kemeja, jas, dan gamis dipasang gantungan hanger terlindung cover pakaian',
+    badge: 'Eksklusif',
+  },
+];
 
 const DEFAULT_AVATAR =
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80';
@@ -677,24 +745,13 @@ export const CustomerSettingsPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-extrabold text-[#111827] mb-1">
-                  Zona & Area Kurir
-                </label>
-                <select
+                <CustomSelect
+                  label="Zona & Area Kurir"
                   value={newAddrArea}
-                  onChange={(e) => setNewAddrArea(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#F5F7FA] text-xs font-bold text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#0095FF]"
-                >
-                  <option value="Sleman (Zona Gratis Ongkir)">
-                    Sleman (Zona Gratis Ongkir)
-                  </option>
-                  <option value="Kota Yogyakarta (Zona Gratis Ongkir)">
-                    Kota Yogyakarta (Zona Gratis Ongkir)
-                  </option>
-                  <option value="Bantul Utara (Gratis Min. 5 Kg)">
-                    Bantul Utara (Gratis Min. 5 Kg)
-                  </option>
-                </select>
+                  onChange={(val) => setNewAddrArea(val)}
+                  options={AREA_OPTIONS}
+                  size="md"
+                />
               </div>
 
               <div>
@@ -750,48 +807,23 @@ export const CustomerSettingsPage: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-xs font-extrabold text-[#111827] mb-2">
-                  Aroma Parfum Default Pilihan Anda
-                </label>
-                <select
+                <CustomSelect
+                  label="Aroma Parfum Default Pilihan Anda"
                   value={defaultScent}
-                  onChange={(e) => setDefaultScent(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-[#F5F7FA] text-xs font-bold text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#0095FF]"
-                >
-                  <option value="ocean_fresh">
-                    Ocean Fresh (Segar Angin Laut & Tahan 14 Hari)
-                  </option>
-                  <option value="sakura_blossom">
-                    Sakura Blossom (Floral Jepang Lembut & Elegan)
-                  </option>
-                  <option value="vanilla_mist">
-                    Vanilla Mist (Aroma Manis Hangat Menenangkan)
-                  </option>
-                  <option value="lavender_calm">
-                    Lavender Calm (Essential Oil untuk Sprei & Tidur)
-                  </option>
-                  <option value="no_perfume">
-                    Tanpa Parfum (Khusus Bayi / Alergi Wewangian)
-                  </option>
-                </select>
+                  onChange={(val) => setDefaultScent(val)}
+                  options={SCENT_OPTIONS}
+                  size="lg"
+                />
               </div>
 
               <div>
-                <label className="block text-xs font-extrabold text-[#111827] mb-2">
-                  Standar Finishing & Pengemasan
-                </label>
-                <select
+                <CustomSelect
+                  label="Standar Finishing & Pengemasan"
                   value={packagingType}
-                  onChange={(e) => setPackagingType(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-[#F5F7FA] text-xs font-bold text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#0095FF]"
-                >
-                  <option value="lipat_rapi">
-                    Lipat Rapi Presisi + Kemas Kedap Debu
-                  </option>
-                  <option value="hanger_kemeja">
-                    Gantung Hanger untuk Kemeja/Jas + Lipat Kaos
-                  </option>
-                </select>
+                  onChange={(val) => setPackagingType(val)}
+                  options={PACKAGING_OPTIONS}
+                  size="lg"
+                />
               </div>
             </div>
 
