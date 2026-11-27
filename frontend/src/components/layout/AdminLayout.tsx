@@ -127,12 +127,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </nav>
 
         {/* Bottom Collapse Button & Copyright */}
-        <div className="p-3 border-t border-slate-100 space-y-2">
+        <div className="p-3 border-t border-slate-100 space-y-1.5">
           <Link
             to="/"
             className={`flex items-center ${
               collapsed ? 'justify-center' : 'gap-2.5 px-3'
             } py-2 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition`}
+            title={collapsed ? 'Lihat Web Pelanggan' : undefined}
           >
             <ExternalLink className="w-3.5 h-3.5 shrink-0" />
             {!collapsed && <span>Lihat Web Pelanggan</span>}
@@ -140,10 +141,23 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
           <button
             type="button"
+            onClick={handleLogout}
+            className={`w-full flex items-center ${
+              collapsed ? 'justify-center' : 'gap-2.5 px-3'
+            } py-2 rounded-lg text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition cursor-pointer`}
+            title={collapsed ? 'Keluar / Logout' : undefined}
+          >
+            <LogOut className="w-3.5 h-3.5 shrink-0" />
+            {!collapsed && <span>Keluar / Logout</span>}
+          </button>
+
+          <button
+            type="button"
             onClick={() => setCollapsed(!collapsed)}
             className={`w-full flex items-center ${
               collapsed ? 'justify-center' : 'gap-2 px-3'
-            } py-2 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer`}
+            } py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition cursor-pointer`}
+            title={collapsed ? 'Perluas menu' : undefined}
           >
             {collapsed ? (
               <ChevronRight className="w-4 h-4" />
@@ -211,6 +225,25 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 );
               })}
             </nav>
+
+            <div className="p-3 border-t border-slate-100 space-y-1.5">
+              <Link
+                to="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition"
+              >
+                <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                <span>Lihat Web Pelanggan</span>
+              </Link>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5 shrink-0" />
+                <span>Keluar / Logout</span>
+              </button>
+            </div>
           </aside>
         </div>
       )}
