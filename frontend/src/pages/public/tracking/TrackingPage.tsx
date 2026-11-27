@@ -19,6 +19,7 @@ import {
   Download,
   ArrowLeft,
   RefreshCw,
+  Navigation,
 } from 'lucide-react';
 
 interface TimelineEvent {
@@ -154,12 +155,12 @@ const PRESET_ORDERS: Record<string, TrackingData> = {
 };
 
 const MASTER_STAGES = [
-  { key: 'terima', label: 'Diterima', subLabel: 'Outlet / Kurir', icon: PackageCheck },
-  { key: 'cuci', label: 'Cuci Higienis', subLabel: '1 Mesin 1 Pelanggan', icon: Waves },
-  { key: 'kering', label: 'Pengering', subLabel: 'Suhu Panas 60°C', icon: Flame },
-  { key: 'setrika', label: 'Setrika Uap', subLabel: 'Rapi & Parfum', icon: Sparkles },
-  { key: 'packing', label: 'QC & Packing', subLabel: 'Segel Higienis', icon: ShieldCheck },
-  { key: 'siap_antar', label: 'Siap Diantar', subLabel: 'Menuju Alamat', icon: Truck },
+  { key: 'terima', label: 'Diterima', subLabel: 'Timbang & Tag', time: '09:49', icon: PackageCheck },
+  { key: 'cuci', label: 'Pencucian', subLabel: '1 Mesin 1 User', time: '10:49', icon: Waves },
+  { key: 'kering', label: 'Pengering', subLabel: 'Dryer 60°C', time: '11:49', icon: Flame },
+  { key: 'setrika', label: 'Setrika Uap', subLabel: 'Steam & Parfum', time: '13:19', icon: Sparkles },
+  { key: 'packing', label: 'QC & Packing', subLabel: 'Segel Higienis', time: 'Est 15:30', icon: ShieldCheck },
+  { key: 'siap_antar', label: 'Pengantaran', subLabel: 'Armada Kurir', time: 'Est 17:00', icon: Truck },
 ];
 
 export const TrackingPage: React.FC = () => {
@@ -179,6 +180,7 @@ export const TrackingPage: React.FC = () => {
   );
 
   useEffect(() => {
+    setSearchInput(normalizedResi);
     setIsLoading(true);
     const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
 
@@ -297,56 +299,53 @@ export const TrackingPage: React.FC = () => {
   const getStatusLabelText = () => {
     switch (trackingData.status.toLowerCase()) {
       case 'terima':
-        return 'Diterima di Outlet';
+        return 'Diterima & Antrean Cuci';
       case 'cuci':
-        return 'Sedang Dicuci (1 Mesin 1 Pelanggan)';
+        return 'Pencucian Tabung Khusus';
       case 'kering':
         return 'Pengeringan Suhu 60°C';
       case 'setrika':
-        return 'Sedang Disetrika Uap & QC';
+        return 'Setrika Uap & QC';
       case 'packing':
-        return 'QC & Packing Kedap Udara';
+        return 'Segel Packing Higienis';
       case 'selesai':
-        return 'Selesai & Diterima Pelanggan';
+        return 'Selesai Diantar';
       default:
         return 'Sedang Diproses';
     }
   };
 
   const trackingMainContent = (
-    <div className="space-y-6">
-      {/* Sleek Sub-Header with Slim Search */}
+    <div className="max-w-[1280px] mx-auto space-y-6">
+      {/* Top Heading + Search Bar Toolbar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#94A3B8]">
-              Live Order Tracking
-            </span>
-            <span className="text-slate-300">•</span>
-            <span className="text-[11px] font-extrabold text-[#0095FF] flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Real-Time Sync
-            </span>
-          </div>
-          <h1 className="text-[23px] font-black text-[#111827] tracking-tight">
-            Lacak Resi Cucian
+          <h1 className="text-[21px] font-extrabold text-[#111827] tracking-tight">
+            Lacak Resi Live
           </h1>
-          <p className="text-[13px] text-[#64748B] font-medium mt-0.5">
-            Pantau tahapan cuci 1 mesin 1 pelanggan dan pergerakan kurir secara langsung.
+          <p className="text-xs text-[#94A3B8] font-medium mt-0.5">
+            Telemetri pengerjaan cucian 1 Mesin 1 Pelanggan dan status kurir antar-jemput
           </p>
         </div>
 
-        {/* Compact Search & Refresh */}
-        <div className="flex items-center gap-2">
-          <form onSubmit={handleSearch} className="relative">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Cari nomor resi..."
-              className="pl-8 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-[#111827] focus:outline-none focus:border-[#0095FF] w-48 sm:w-56 shadow-2xs"
-            />
+        <div className="flex flex-wrap items-center gap-2">
+          <form onSubmit={handleSearch} className="flex items-center gap-2 flex-1 sm:flex-initial">
+            <div className="relative flex-1 sm:w-56">
+              <Search className="w-3.5 h-3.5 text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="Ketik nomor resi..."
+                className="w-full pl-9 pr-3 py-2 rounded-xl bg-white border border-slate-200/90 text-xs font-bold text-[#111827] focus:outline-none focus:border-[#0095FF] shadow-2xs"
+              />
+            </div>
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-xl bg-[#0095FF] hover:bg-[#0080DB] text-white text-xs font-bold shadow-[0_4px_12px_rgba(0,149,255,0.35)] transition cursor-pointer shrink-0"
+            >
+              Lacak
+            </button>
           </form>
 
           <button
@@ -355,230 +354,367 @@ export const TrackingPage: React.FC = () => {
               setIsLoading(true);
               setTimeout(() => setIsLoading(false), 400);
             }}
-            title="Segarkan data"
-            className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-[#0095FF] hover:border-[#0095FF] transition cursor-pointer shadow-2xs"
+            title="Segarkan Status"
+            className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-[#0095FF] transition cursor-pointer shadow-2xs"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-[#0095FF]' : ''}`} />
           </button>
         </div>
       </div>
 
-      {/* Quick Pills for Sample Orders */}
+      {/* Quick Switcher Resi Aktif */}
       <div className="flex flex-wrap items-center gap-2 text-[11px]">
-        <span className="font-semibold text-[#94A3B8]">Contoh Resi Aktif:</span>
+        <span className="font-semibold text-[#94A3B8]">Pilih Resi Cepat:</span>
         {[
-          { code: 'KCK-2026-001', label: 'Setrika Uap • 75%' },
-          { code: 'KCK-2026-002', label: 'Sedang Dicuci • 35%' },
+          { code: 'KCK-2026-001', label: 'Setrika Uap • 78%' },
+          { code: 'KCK-2026-002', label: 'Proses Cuci • 35%' },
           { code: 'KCK-2026-003', label: 'Dijemput Kurir • 15%' },
         ].map((s) => (
           <button
             key={s.code}
             type="button"
             onClick={() => handleSelectSample(s.code)}
-            className={`px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition cursor-pointer ${
+            className={`px-3 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
               normalizedResi === s.code
-                ? 'bg-[#111827] text-white shadow-2xs'
-                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                ? 'bg-[#0095FF] text-white shadow-2xs'
+                : 'bg-white border border-slate-200/80 text-[#64748B] hover:text-[#111827]'
             }`}
           >
-            <span>{s.code}</span>
-            <span className="ml-1 opacity-75 font-sans font-normal text-[10px]">({s.label})</span>
+            <span className="font-mono">{s.code}</span>
+            <span className="ml-1.5 opacity-85 font-normal">({s.label})</span>
           </button>
         ))}
       </div>
 
-      {/* Clean White Status Hero Card (TechBomb Style, Non-Clunky) */}
-      <div className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-100 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] flex flex-col justify-between space-y-6">
-        {/* Top Meta Tags */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-          <div>
-            <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-md bg-[#F5F7FA] border border-slate-200 text-[#111827] font-mono text-xs font-black">
-                #{trackingData.order_number}
+      {/* ROW 1: 3 TechBomb Telemetry KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* Card 1: Nomor Resi & Tahap Aktif */}
+        <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between min-h-[132px]">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-[12.5px] font-semibold text-[#94A3B8]">
+                Resi #{trackingData.order_number}
               </span>
               <button
                 type="button"
                 onClick={handleCopyResi}
-                className="px-2 py-0.5 rounded-md text-[11px] font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer flex items-center gap-1"
+                className="text-slate-400 hover:text-[#0095FF] transition cursor-pointer"
+                title="Salin Nomor Resi"
               >
                 {copiedResi ? (
-                  <>
-                    <Check className="w-3 h-3 text-emerald-600" />
-                    <span className="text-emerald-700">Tersalin</span>
-                  </>
+                  <Check className="w-3.5 h-3.5 text-[#10B981]" />
                 ) : (
-                  <>
-                    <Copy className="w-3 h-3" />
-                    <span>Salin</span>
-                  </>
+                  <Copy className="w-3.5 h-3.5" />
                 )}
               </button>
-
-              <span
-                className={`px-2.5 py-0.5 rounded-md text-[10.5px] font-extrabold ${
-                  trackingData.payment_status === 'paid'
-                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                    : 'bg-rose-50 text-rose-700 border border-rose-200'
-                }`}
-              >
-                {trackingData.payment_status === 'paid' ? 'Lunas • QRIS' : 'Menunggu Bayar'}
-              </span>
-
-              <span className="px-2.5 py-0.5 rounded-md bg-sky-50 text-[#0095FF] border border-sky-100 text-[10.5px] font-extrabold">
-                1 Mesin 1 Pelanggan
-              </span>
             </div>
-
-            <div className="flex items-center gap-2.5 mt-1">
-              <h2 className="text-xl sm:text-2xl font-black text-[#111827] tracking-tight">
-                {getStatusLabelText()}
-              </h2>
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0095FF] opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#0095FF]" />
-              </span>
-            </div>
-
-            <p className="text-xs text-[#64748B] mt-1">
-              {trackingData.service_type} ({trackingData.weight_kg.toFixed(2)} Kg) • Pilihan Aroma:{' '}
-              <b className="text-slate-800">{trackingData.fragrance}</b>
-            </p>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-50 text-[#0095FF] text-[10.5px] font-extrabold">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#0095FF] animate-ping" />
+              Live
+            </span>
           </div>
 
-          {/* Right ETA Card */}
-          <div className="bg-[#F8FAFC] rounded-2xl p-4 border border-slate-100 flex flex-col justify-between min-w-[240px]">
-            <div className="flex items-center justify-between text-[11px] font-bold text-[#94A3B8] mb-1">
-              <span>Estimasi Cucian Selesai</span>
-              <Clock className="w-3.5 h-3.5 text-[#0095FF]" />
-            </div>
-            <p className="text-base font-extrabold text-[#111827]">
-              Hari ini, 17:00 WIB
-            </p>
-            <p className="text-[11px] text-[#64748B]">Sisa estimasi pengerjaan: ± 1-2 Jam</p>
-
-            <div className="mt-3 pt-2.5 border-t border-slate-200/60">
-              <div className="flex justify-between text-[11px] font-extrabold mb-1">
-                <span className="text-[#64748B]">Progres Pengerjaan</span>
-                <span className="text-[#0095FF]">{progressPercent}%</span>
-              </div>
-              <div className="w-full h-2 bg-slate-200/70 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[#0095FF] rounded-full transition-all duration-500"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
+          <div className="mt-4 flex items-end justify-between gap-2">
+            <div>
+              <span className="text-[20px] sm:text-[22px] font-black text-[#111827] tracking-tight leading-none block">
+                {getStatusLabelText()}
+              </span>
+              <p className="text-[11px] font-medium text-[#64748B] mt-1.5">
+                {trackingData.service_type} ({trackingData.weight_kg.toFixed(2)} Kg)
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Sleek Connected Stepper (Horizontal on Desktop, Clean) */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-[#94A3B8]">
-              Alur Pengerjaan Cucian
-            </h3>
-            <span className="text-xs font-bold text-[#64748B]">
-              Tahap {currentStageIndex + 1} dari {MASTER_STAGES.length}
+        {/* Card 2: Estimasi Selesai & Progress Bar */}
+        <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between min-h-[132px]">
+          <div className="flex items-center justify-between">
+            <span className="text-[13px] font-semibold text-[#94A3B8]">
+              Estimasi Selesai & Antar
+            </span>
+            <Clock className="w-4 h-4 text-[#0095FF]" />
+          </div>
+
+          <div className="mt-3">
+            <div className="flex items-baseline justify-between mb-2">
+              <span className="text-[20px] sm:text-[22px] font-black text-[#111827] tracking-tight">
+                Hari ini, 17:00 WIB
+              </span>
+              <span className="text-xs font-extrabold text-[#0095FF]">
+                {progressPercent}%
+              </span>
+            </div>
+            <div className="w-full h-2 bg-[#F5F7FA] rounded-full overflow-hidden">
+              <div
+                className="h-full bg-[#0095FF] rounded-full transition-all duration-500"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Card 3: Status Tagihan & Protokol Higienitas */}
+        <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between min-h-[132px] sm:col-span-2 lg:col-span-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[13px] font-semibold text-[#94A3B8]">
+              Tagihan & Aroma Pilihan
+            </span>
+            <span
+              className={`px-2.5 py-0.5 rounded-md text-[10.5px] font-extrabold ${
+                trackingData.payment_status === 'paid'
+                  ? 'bg-[#E6F8F3] text-[#10B981]'
+                  : 'bg-[#FEECEB] text-[#F43F5E]'
+              }`}
+            >
+              {trackingData.payment_status === 'paid' ? 'Lunas • QRIS' : 'Belum Bayar'}
             </span>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-2.5 sm:gap-3">
+          <div className="mt-4 flex items-end justify-between gap-2">
+            <span className="text-[23px] sm:text-[25px] font-black text-[#111827] tracking-tight leading-none">
+              Rp {trackingData.total_amount.toLocaleString('id-ID')}
+            </span>
+            <div className="text-right">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#F4F8FD] text-[#0095FF] text-[10.5px] font-extrabold">
+                {trackingData.fragrance}
+              </span>
+              <p className="text-[10px] font-medium text-[#CBD5E1] mt-1">
+                1 Mesin 1 Pelanggan
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ROW 2: Connected Pipeline Stepper Card */}
+      <div className="bg-white rounded-2xl p-5 sm:p-7 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
+          <div>
+            <h2 className="text-[16px] font-extrabold text-[#111827] tracking-tight">
+              Alur Produksi & Pengantaran
+            </h2>
+            <p className="text-[11.5px] text-[#94A3B8] mt-0.5">
+              Tahap {currentStageIndex + 1} dari {MASTER_STAGES.length} • Diawasi sensor IoT & staf QC Kucek Hub
+            </p>
+          </div>
+          <span className="px-3 py-1 rounded-lg bg-[#F5F7FA] text-[#64748B] text-[11px] font-bold">
+            Stasiun Aktif: Meja Steam Uap #04
+          </span>
+        </div>
+
+        {/* Desktop Connected Horizontal Stepper */}
+        <div className="hidden md:block relative pt-2 pb-1">
+          {/* Background Track Line */}
+          <div className="absolute top-7 left-[8%] right-[8%] h-1 bg-slate-100 rounded-full" />
+          {/* Active Fill Line */}
+          <div
+            className="absolute top-7 left-[8%] h-1 bg-[#0095FF] rounded-full transition-all duration-700"
+            style={{
+              width: `${Math.min(84, (currentStageIndex / (MASTER_STAGES.length - 1)) * 84)}%`,
+            }}
+          />
+
+          <div className="relative z-10 grid grid-cols-6 gap-2">
             {MASTER_STAGES.map((stg, idx) => {
               const isPassed = idx < currentStageIndex;
               const isCurrent = idx === currentStageIndex;
               const Icon = stg.icon;
 
               return (
-                <div
-                  key={stg.key}
-                  className={`p-3 rounded-xl border transition-all ${
-                    isCurrent
-                      ? 'bg-sky-50/50 border-[#0095FF] shadow-xs'
-                      : isPassed
-                      ? 'bg-white border-slate-200'
-                      : 'bg-[#F8FAFC] border-slate-100 opacity-60'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
-                        isCurrent
-                          ? 'bg-[#0095FF] text-white shadow-xs'
-                          : isPassed
-                          ? 'bg-emerald-500 text-white'
-                          : 'bg-slate-200 text-slate-500'
-                      }`}
-                    >
-                      {isPassed ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-3.5 h-3.5" />}
-                    </div>
-                    <span
-                      className={`text-[10px] font-bold ${
-                        isCurrent ? 'text-[#0095FF]' : isPassed ? 'text-emerald-700' : 'text-slate-400'
-                      }`}
-                    >
-                      Step {idx + 1}
-                    </span>
+                <div key={stg.key} className="flex flex-col items-center text-center px-1">
+                  <div
+                    className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                      isCurrent
+                        ? 'bg-[#0095FF] text-white ring-4 ring-[#0095FF]/15 shadow-[0_6px_16px_-2px_rgba(0,149,255,0.45)] scale-105'
+                        : isPassed
+                        ? 'bg-[#10B981] text-white shadow-xs'
+                        : 'bg-[#F5F7FA] text-[#94A3B8] border border-slate-200/80'
+                    }`}
+                  >
+                    {isPassed ? (
+                      <CheckCircle2 className="w-5 h-5" />
+                    ) : (
+                      <Icon className="w-4 h-4" />
+                    )}
                   </div>
 
                   <p
-                    className={`text-xs font-extrabold truncate ${
-                      isCurrent ? 'text-[#0095FF]' : isPassed ? 'text-[#111827]' : 'text-slate-400'
+                    className={`text-xs font-extrabold mt-3 ${
+                      isCurrent
+                        ? 'text-[#0095FF]'
+                        : isPassed
+                        ? 'text-[#111827]'
+                        : 'text-[#94A3B8]'
                     }`}
                   >
                     {stg.label}
                   </p>
-                  <p className="text-[10px] text-[#94A3B8] font-medium mt-0.5 truncate">
+                  <p className="text-[10.5px] text-[#94A3B8] font-medium mt-0.5">
                     {stg.subLabel}
                   </p>
+                  <span
+                    className={`mt-1.5 px-2 py-0.5 rounded text-[10px] font-bold ${
+                      isCurrent
+                        ? 'bg-sky-50 text-[#0095FF]'
+                        : isPassed
+                        ? 'bg-[#E6F8F3] text-[#10B981]'
+                        : 'text-slate-400'
+                    }`}
+                  >
+                    {stg.time}
+                  </span>
                 </div>
               );
             })}
           </div>
         </div>
+
+        {/* Mobile Compact 2x3 Grid Stepper (< 768px) */}
+        <div className="md:hidden grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+          {MASTER_STAGES.map((stg, idx) => {
+            const isPassed = idx < currentStageIndex;
+            const isCurrent = idx === currentStageIndex;
+            const Icon = stg.icon;
+
+            return (
+              <div
+                key={stg.key}
+                className={`p-3 rounded-xl border flex items-center gap-2.5 ${
+                  isCurrent
+                    ? 'bg-sky-50/60 border-[#0095FF]'
+                    : isPassed
+                    ? 'bg-white border-slate-200/80'
+                    : 'bg-[#F8FAFC] border-slate-100 opacity-60'
+                }`}
+              >
+                <div
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                    isCurrent
+                      ? 'bg-[#0095FF] text-white'
+                      : isPassed
+                      ? 'bg-[#10B981] text-white'
+                      : 'bg-slate-200 text-slate-500'
+                  }`}
+                >
+                  {isPassed ? (
+                    <CheckCircle2 className="w-4 h-4" />
+                  ) : (
+                    <Icon className="w-3.5 h-3.5" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p
+                    className={`text-xs font-extrabold truncate ${
+                      isCurrent
+                        ? 'text-[#0095FF]'
+                        : isPassed
+                        ? 'text-[#111827]'
+                        : 'text-slate-400'
+                    }`}
+                  >
+                    {stg.label}
+                  </p>
+                  <p className="text-[10px] text-[#94A3B8] truncate">{stg.subLabel}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Two-Column Bento Details */}
+      {/* ROW 3: Two-Column Bento Details (7 Cols Activity Log + Route / 5 Cols Courier + e-Nota) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Left 7 Cols: Real Activity Logs + SOP Higienis */}
+        {/* Left 7 Cols */}
         <div className="lg:col-span-7 space-y-5">
-          {/* Card: Live Physical Timeline */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.05)]">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3.5 mb-5">
-              <div>
-                <h3 className="text-sm font-extrabold text-[#111827] tracking-tight">
-                  Jejak Aktivitas & Log Produksi
+          {/* Live Route Visualizer Banner */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-100/80 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.05)]">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Navigation className="w-4 h-4 text-[#0095FF]" />
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-[#111827]">
+                  Rute Pengantaran Armada
                 </h3>
-                <p className="text-xs text-[#94A3B8]">Audit stempel waktu resmi operator kucek.id</p>
               </div>
-              <span className="text-[11px] font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-md">
-                {trackingData.timeline.length} Aktivitas
+              <span className="text-[11px] font-bold text-[#0095FF] bg-sky-50 px-2.5 py-0.5 rounded-md">
+                Jarak 2.4 Km • ±12 Menit
               </span>
             </div>
 
-            <div className="relative pl-5 border-l-2 border-slate-100 ml-2.5 space-y-5">
+            <div className="p-3.5 rounded-xl bg-[#F8FAFC] border border-dashed border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <span className="text-[10px] font-bold uppercase text-[#94A3B8] block">
+                  Titik Asal Outlet
+                </span>
+                <p className="text-xs font-extrabold text-[#111827] mt-0.5">
+                  Kucek Hub Kaliurang KM 5
+                </p>
+              </div>
+
+              <div className="hidden sm:flex items-center gap-1.5 text-[#0095FF] flex-1 max-w-[140px] mx-2">
+                <span className="w-2 h-2 rounded-full bg-[#0095FF]" />
+                <div className="flex-1 border-t-2 border-dashed border-[#0095FF]" />
+                <Truck className="w-4 h-4 shrink-0" />
+                <div className="flex-1 border-t-2 border-dashed border-slate-300" />
+                <span className="w-2 h-2 rounded-full bg-[#10B981]" />
+              </div>
+
+              <div className="sm:text-right">
+                <span className="text-[10px] font-bold uppercase text-[#94A3B8] block">
+                  Titik Antar Pelanggan
+                </span>
+                <p className="text-xs font-extrabold text-[#111827] mt-0.5">
+                  Jl. Kaliurang KM 5 No. 12, Sleman
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Card: Live Physical Timeline */}
+          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-100/80 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.05)]">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3.5 mb-5">
+              <div>
+                <h3 className="text-[15px] font-extrabold text-[#111827] tracking-tight">
+                  Jejak Aktivitas & Log Produksi
+                </h3>
+                <p className="text-xs text-[#94A3B8]">
+                  Audit stempel waktu resmi operator kucek.id
+                </p>
+              </div>
+              <span className="text-[11px] font-bold text-[#64748B] bg-[#F5F7FA] px-2.5 py-1 rounded-lg">
+                {trackingData.timeline.length} Log Tercatat
+              </span>
+            </div>
+
+            <div className="relative pl-5 border-l-2 border-slate-100 ml-2.5 space-y-4">
               {trackingData.timeline.map((evt, i) => {
                 const isLatest = i === trackingData.timeline.length - 1;
                 return (
                   <div key={evt.id || i} className="relative">
                     <div
-                      className={`absolute -left-[27px] top-1.5 w-3.5 h-3.5 rounded-full border-2 border-white ${
-                        isLatest ? 'bg-[#0095FF] ring-2 ring-sky-200' : 'bg-emerald-500'
+                      className={`absolute -left-[27px] top-2 w-3.5 h-3.5 rounded-full border-2 border-white ${
+                        isLatest
+                          ? 'bg-[#0095FF] ring-3 ring-[#0095FF]/20'
+                          : 'bg-[#10B981]'
                       }`}
                     />
-                    <div className="bg-[#F8FAFC] rounded-xl p-3.5 border border-slate-100">
+                    <div className="p-3.5 rounded-2xl bg-[#F8FAFC] border border-slate-100 hover:border-slate-200 transition">
                       <div className="flex flex-wrap items-center justify-between gap-1 mb-1">
-                        <span className="text-xs font-bold text-[#111827]">{evt.title}</span>
-                        <span className="text-[10.5px] font-bold text-[#0095FF] bg-sky-50 px-2 py-0.5 rounded">
+                        <span className="text-xs font-extrabold text-[#111827]">
+                          {evt.title}
+                        </span>
+                        <span className="text-[10.5px] font-bold text-[#0095FF] bg-sky-50 px-2 py-0.5 rounded-md">
                           {evt.timestamp}
                         </span>
                       </div>
-                      <p className="text-xs text-[#64748B] leading-relaxed">{evt.description}</p>
+                      <p className="text-xs text-[#64748B] leading-relaxed">
+                        {evt.description}
+                      </p>
                       <div className="mt-2.5 pt-2 border-t border-slate-200/50 flex flex-wrap items-center justify-between gap-2 text-[10.5px] text-[#94A3B8]">
                         <span className="flex items-center gap-1 font-semibold text-slate-600">
-                          <MapPin className="w-3 h-3 text-rose-500" />
+                          <MapPin className="w-3 h-3 text-[#0095FF]" />
                           {evt.location}
                         </span>
-                        <span>Oleh: {evt.updated_by}</span>
+                        <span>Petugas: {evt.updated_by}</span>
                       </div>
                     </div>
                   </div>
@@ -586,61 +722,39 @@ export const TrackingPage: React.FC = () => {
               })}
             </div>
           </div>
-
-          {/* Card: Hygiene Guarantees */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.05)]">
-            <div className="flex items-center gap-2 mb-3">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-[#111827]">
-                Standar Higienitas Kucek.id
-              </h3>
-            </div>
-            <div className="grid grid-cols-2 gap-2.5 text-xs">
-              <div className="p-2.5 rounded-xl bg-[#F8FAFC] border border-slate-100">
-                <p className="font-bold text-[#111827]">100% Tidak Dicampur</p>
-                <p className="text-[11px] text-[#64748B] mt-0.5">1 Mesin cuci khusus 1 pelanggan.</p>
-              </div>
-              <div className="p-2.5 rounded-xl bg-[#F8FAFC] border border-slate-100">
-                <p className="font-bold text-[#111827]">Dryer Panas 60°C</p>
-                <p className="text-[11px] text-[#64748B] mt-0.5">Bebas debu jalanan & basmi tungau.</p>
-              </div>
-              <div className="p-2.5 rounded-xl bg-[#F8FAFC] border border-slate-100">
-                <p className="font-bold text-[#111827]">Parfum 14 Hari</p>
-                <p className="text-[11px] text-[#64748B] mt-0.5">Grade konsentrat tinggi tahan lama.</p>
-              </div>
-              <div className="p-2.5 rounded-xl bg-[#F8FAFC] border border-slate-100">
-                <p className="font-bold text-[#111827]">Garansi Cuci Ulang</p>
-                <p className="text-[11px] text-[#64748B] mt-0.5">Gratis cuci ulang bila kurang wangi.</p>
-              </div>
-            </div>
-          </div>
         </div>
 
-        {/* Right 5 Cols: Kurir & e-Nota Digital */}
+        {/* Right 5 Cols: Courier Dispatch + e-Nota + Hygiene SOP */}
         <div className="lg:col-span-5 space-y-5">
-          {/* Card: Kurir */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.05)] space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-[#111827]">
-                Kurir Antar-Jemput
+          {/* Card: Kurir Antar-Jemput */}
+          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-100/80 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.05)] space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-[15px] font-extrabold text-[#111827] tracking-tight">
+                Kurir & Armada Tugas
               </h3>
-              <span className="text-[10.5px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                Siaga
+              <span className="text-[10.5px] font-extrabold text-[#10B981] bg-[#E6F8F3] px-2.5 py-0.5 rounded-md">
+                Kurir Siaga
               </span>
             </div>
 
-            <div className="flex items-center gap-3">
-              <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80"
-                alt="Kurir"
-                className="w-11 h-11 rounded-xl object-cover border border-slate-200"
-              />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-extrabold text-[#111827]">Raka Pratama</p>
-                <p className="text-[11px] text-[#64748B]">Kurir Resmi Kucek • Armada 01</p>
-                <p className="text-[10.5px] text-slate-500 font-semibold mt-0.5">
-                  Honda Vario 160 (AB 4521 XY)
-                </p>
+            <div className="p-3.5 rounded-2xl border border-dashed border-slate-200 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <img
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80"
+                  alt="Kurir Raka Pratama"
+                  className="w-12 h-12 rounded-xl object-cover shrink-0"
+                />
+                <div className="min-w-0">
+                  <p className="text-xs font-extrabold text-[#111827] truncate">
+                    Raka Pratama (Armada 01)
+                  </p>
+                  <p className="text-[11px] text-[#64748B] truncate mt-0.5">
+                    Honda Vario 160 • AB 4521 XY
+                  </p>
+                  <p className="text-[10.5px] font-bold text-amber-500 mt-0.5">
+                    ★ 4.95 • 1.240 Pengantaran
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -648,45 +762,51 @@ export const TrackingPage: React.FC = () => {
               href={`https://wa.me/6281298765432?text=Halo%20Kurir%20Raka,%20saya%20pelanggan%20resi%20${trackingData.order_number}`}
               target="_blank"
               rel="noreferrer"
-              className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-xs"
+              className="w-full py-2.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-xs"
             >
               <MessageCircle className="w-4 h-4" />
-              <span>Chat WhatsApp Kurir</span>
+              <span>Hubungi Kurir via WhatsApp</span>
             </a>
           </div>
 
           {/* Card: e-Nota Digital */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.05)] space-y-3">
+          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-100/80 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.05)] space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-[#111827]">
-                Rincian e-Nota
+              <h3 className="text-[15px] font-extrabold text-[#111827] tracking-tight">
+                Rincian e-Nota Cucian
               </h3>
               <span className="font-mono text-xs font-bold text-[#94A3B8]">
                 #{trackingData.order_number}
               </span>
             </div>
 
-            <div className="space-y-2 text-xs">
+            <div className="space-y-2.5 text-xs">
               <div className="flex justify-between text-[#64748B]">
-                <span>Pelanggan:</span>
+                <span>Nama Pelanggan:</span>
                 <span className="font-bold text-[#111827]">{trackingData.customer_name}</span>
               </div>
               <div className="flex justify-between text-[#64748B]">
-                <span>Layanan:</span>
+                <span>WhatsApp Terdaftar:</span>
+                <span className="font-bold text-[#111827]">{trackingData.customer_phone}</span>
+              </div>
+              <div className="flex justify-between text-[#64748B]">
+                <span>Jenis Layanan:</span>
                 <span className="font-bold text-[#111827]">{trackingData.service_type}</span>
               </div>
               <div className="flex justify-between text-[#64748B]">
-                <span>Bobot Cucian:</span>
-                <span className="font-bold text-[#0095FF]">{trackingData.weight_kg.toFixed(2)} KG</span>
+                <span>Bobot Timbang:</span>
+                <span className="font-extrabold text-[#0095FF]">
+                  {trackingData.weight_kg.toFixed(2)} KG
+                </span>
               </div>
               <div className="flex justify-between text-[#64748B]">
-                <span>Pilihan Aroma:</span>
+                <span>Karakter Parfum:</span>
                 <span className="font-bold text-[#111827]">{trackingData.fragrance}</span>
               </div>
 
-              <div className="pt-2 border-t border-slate-100 flex justify-between items-baseline">
+              <div className="pt-3 border-t border-dashed border-slate-200 flex justify-between items-baseline">
                 <span className="font-extrabold text-[#111827]">Total Tagihan:</span>
-                <span className="text-base font-black text-[#0095FF]">
+                <span className="text-lg font-black text-[#0095FF]">
                   Rp {trackingData.total_amount.toLocaleString('id-ID')}
                 </span>
               </div>
@@ -695,10 +815,10 @@ export const TrackingPage: React.FC = () => {
             <button
               type="button"
               onClick={() => alert(`Mengunduh e-Nota #${trackingData.order_number}...`)}
-              className="w-full mt-2 py-2 rounded-xl bg-[#F8FAFC] hover:bg-slate-200 text-[#111827] text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer border border-slate-200"
+              className="w-full py-2.5 rounded-xl bg-[#F5F7FA] hover:bg-slate-200/80 text-[#111827] text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Unduh e-Nota (PDF)</span>
+              <span>Unduh e-Nota Digital (PDF)</span>
             </button>
           </div>
         </div>
@@ -711,8 +831,8 @@ export const TrackingPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-2xs">
+    <div className="min-h-screen bg-[#F6F8FB] flex flex-col font-sans">
+      <header className="bg-white border-b border-slate-100 sticky top-0 z-30">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link to="/" className="inline-flex items-baseline tracking-tight">
             <span className="text-[22px] font-black text-[#0095FF]">kucek</span>

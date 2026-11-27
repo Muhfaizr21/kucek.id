@@ -3,10 +3,11 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
-    @apply bg-[#F4EDE5] text-[#1A1918] font-sans antialiased overflow-x-hidden;
+    @apply bg-[#F6F8FB] text-[#111827] font-sans antialiased overflow-x-hidden;
   }
 
   a[href],
@@ -36,9 +37,25 @@
   input:focus-visible,
   select:focus-visible,
   textarea:focus-visible {
-    outline: 2px solid #C8430E;
+    outline: 2px solid rgba(0, 149, 255, 0.35);
     outline-offset: 2px;
   }
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 @media (prefers-reduced-motion: reduce) {

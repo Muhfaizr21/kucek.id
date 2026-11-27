@@ -333,7 +333,7 @@ export const CustomerSettingsPage: React.FC = () => {
 
   return (
     <CustomerLayout>
-      <div className="max-w-[1140px] mx-auto space-y-6">
+      <div className="max-w-[1280px] mx-auto space-y-6">
         {/* Top Page Title */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>

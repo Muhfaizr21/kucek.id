@@ -243,7 +243,7 @@ export const CustomerPackagesPage: React.FC = () => {
 
   return (
     <CustomerLayout>
-      <div className="max-w-[1140px] mx-auto space-y-6">
+      <div className="max-w-[1280px] mx-auto space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="text-[22px] font-black text-[#111827] tracking-tight">

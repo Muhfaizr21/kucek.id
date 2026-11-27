@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CustomerLayout } from '../../../components/layout/CustomerLayout';
-import { MoreHorizontal, TrendingUp, TrendingDown, TicketPercent } from 'lucide-react';
+import { MoreHorizontal, TrendingUp, TrendingDown, TicketPercent, ArrowRight } from 'lucide-react';
 import { getAuthToken } from '../../../services/authService';
 
 interface CustomerOrderRow {
@@ -173,7 +173,6 @@ export const CustomerHomePage: React.FC = () => {
             setActiveOrderNumber(d.active_orders[0].order_number);
           }
 
-          // Map real orders from DB into Table & Delivery Cards
           if (Array.isArray(d.all_orders) && d.all_orders.length > 0) {
             const scentLabel: Record<string, string> = {
               ocean_fresh: 'Ocean Fresh',
@@ -288,7 +287,6 @@ export const CustomerHomePage: React.FC = () => {
     { day: '30 Nov', heightPct: 37, kg: '3.0 Kg' },
   ];
 
-  // Avatar kru pencuci & kurir hari ini
   const crewAvatars = [
     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
     'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
@@ -316,9 +314,9 @@ export const CustomerHomePage: React.FC = () => {
         </div>
 
         {/* ROW 1: 3 Top KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {/* Card 1: Sisa Kuota Langganan */}
-          <div className="bg-white rounded-2xl p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between min-h-[138px]">
+          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between min-h-[138px]">
             <div className="flex items-center justify-between">
               <span className="text-[13.5px] font-semibold text-[#94A3B8]">
                 Sisa Kuota Langganan
@@ -350,7 +348,7 @@ export const CustomerHomePage: React.FC = () => {
           </div>
 
           {/* Card 2: Pengeluaran Bulan Ini */}
-          <div className="bg-white rounded-2xl p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between min-h-[138px]">
+          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between min-h-[138px]">
             <div className="flex items-center justify-between">
               <span className="text-[13.5px] font-semibold text-[#94A3B8]">
                 Pengeluaran Bulan Ini
@@ -382,7 +380,7 @@ export const CustomerHomePage: React.FC = () => {
           </div>
 
           {/* Card 3: Total Cucian Bersih & Tim Siaga */}
-          <div className="bg-white rounded-2xl p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between min-h-[138px]">
+          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between min-h-[138px] sm:col-span-2 lg:col-span-1">
             <div className="flex items-center justify-between">
               <span className="text-[13.5px] font-semibold text-[#94A3B8]">
                 Total Cucian Bersih Bulan Ini
@@ -426,7 +424,7 @@ export const CustomerHomePage: React.FC = () => {
         {/* ROW 2: Vertical Pill Bar Chart (7 Cols) + Donut Chart (5 Cols) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
           {/* Left 7 Cols: Pemakaian Laundry Bulan Ini */}
-          <div className="lg:col-span-7 bg-white rounded-2xl p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between">
+          <div className="lg:col-span-7 bg-white rounded-2xl p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-[17px] font-extrabold text-[#111827] tracking-tight">
@@ -437,8 +435,8 @@ export const CustomerHomePage: React.FC = () => {
                 </p>
               </div>
 
-              <div className="text-right">
-                <p className="text-[22px] font-black text-[#111827] tracking-tight leading-none">
+              <div className="text-right shrink-0">
+                <p className="text-[20px] sm:text-[22px] font-black text-[#111827] tracking-tight leading-none">
                   {monthlyUsageKg.toFixed(2)} Kg
                 </p>
                 <p className="text-[10.5px] font-medium text-[#CBD5E1] mt-1">
@@ -447,8 +445,8 @@ export const CustomerHomePage: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-7 flex gap-3">
-              <div className="flex flex-col justify-between text-[10.5px] font-semibold text-[#94A3B8] pb-6 pr-1 select-none">
+            <div className="mt-7 flex gap-2.5 sm:gap-3">
+              <div className="flex flex-col justify-between text-[10px] sm:text-[10.5px] font-semibold text-[#94A3B8] pb-6 pr-1 select-none shrink-0">
                 <span>10 Kg</span>
                 <span>8 Kg</span>
                 <span>6 Kg</span>
@@ -457,8 +455,8 @@ export const CustomerHomePage: React.FC = () => {
                 <span>0 Kg</span>
               </div>
 
-              <div className="flex-1 flex flex-col">
-                <div className="h-[185px] flex items-end justify-between gap-1.5 sm:gap-2.5 px-1 border-b border-slate-100 pb-2">
+              <div className="flex-1 flex flex-col min-w-0">
+                <div className="h-[175px] sm:h-[185px] flex items-end justify-between gap-1 sm:gap-2.5 px-1 border-b border-slate-100 pb-2">
                   {monthlyBarData.map((bar, idx) => (
                     <div
                       key={idx}
@@ -469,13 +467,13 @@ export const CustomerHomePage: React.FC = () => {
                       </div>
                       <div
                         style={{ height: `${bar.heightPct}%` }}
-                        className="w-2 sm:w-2.5 rounded-full bg-[#0095FF] group-hover:bg-[#0077CC] transition-all duration-300 shadow-[0_4px_10px_-2px_rgba(0,149,255,0.45)]"
+                        className="w-1.5 sm:w-2.5 rounded-full bg-[#0095FF] group-hover:bg-[#0077CC] transition-all duration-300 shadow-[0_4px_10px_-2px_rgba(0,149,255,0.45)]"
                       />
                     </div>
                   ))}
                 </div>
 
-                <div className="flex items-center justify-between text-[10.5px] font-semibold text-[#94A3B8] pt-3 px-2">
+                <div className="flex items-center justify-between text-[9.5px] sm:text-[10.5px] font-semibold text-[#94A3B8] pt-3 px-1">
                   <span>01 Nov</span>
                   <span>10 Nov</span>
                   <span>15 Nov</span>
@@ -488,7 +486,7 @@ export const CustomerHomePage: React.FC = () => {
           </div>
 
           {/* Right 5 Cols: Komposisi Layanan */}
-          <div className="lg:col-span-5 bg-white rounded-2xl p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between">
+          <div className="lg:col-span-5 bg-white rounded-2xl p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between">
             <div className="flex items-start justify-between">
               <div>
                 <h2 className="text-[17px] font-extrabold text-[#111827] tracking-tight">
@@ -546,7 +544,7 @@ export const CustomerHomePage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="relative w-44 h-44 flex items-center justify-center shrink-0">
+              <div className="relative w-40 h-40 sm:w-44 sm:h-44 flex items-center justify-center shrink-0">
                 <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
                   <circle
                     cx="60"
@@ -581,7 +579,7 @@ export const CustomerHomePage: React.FC = () => {
                 </svg>
 
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
-                  <span className="text-[19px] font-black text-[#111827] tracking-tight leading-none">
+                  <span className="text-[18px] sm:text-[19px] font-black text-[#111827] tracking-tight leading-none">
                     {monthlyUsageKg.toFixed(2)} Kg
                   </span>
                   <span className="text-[9.5px] font-medium text-[#CBD5E1] mt-1">
@@ -596,7 +594,7 @@ export const CustomerHomePage: React.FC = () => {
         {/* ROW 3: Progres Antar-Jemput (5 Cols) + Rincian Nota & Kuota Cucian (7 Cols) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
           {/* Left 5 Cols: Progres Antar-Jemput */}
-          <div className="lg:col-span-5 bg-white rounded-2xl p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between">
+          <div className="lg:col-span-5 bg-white rounded-2xl p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between">
             <div className="flex items-start justify-between gap-2">
               <div>
                 <h2 className="text-[17px] font-extrabold text-[#111827] tracking-tight">
@@ -625,10 +623,10 @@ export const CustomerHomePage: React.FC = () => {
                     <img
                       src={item.image}
                       alt={item.title}
-                      className="w-12 h-12 rounded-xl object-cover bg-slate-100 shrink-0"
+                      className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl object-cover bg-slate-100 shrink-0"
                     />
                     <div className="min-w-0">
-                      <p className="text-[13px] font-extrabold text-[#111827] truncate group-hover:text-[#0095FF] transition">
+                      <p className="text-xs sm:text-[13px] font-extrabold text-[#111827] truncate group-hover:text-[#0095FF] transition">
                         {item.title}
                       </p>
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10.5px] text-[#94A3B8] font-medium mt-1">
@@ -643,7 +641,7 @@ export const CustomerHomePage: React.FC = () => {
                   </div>
 
                   <span
-                    className={`px-3 py-1 rounded-lg text-[10.5px] font-extrabold shrink-0 ${item.badgeClass}`}
+                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-[10px] sm:text-[10.5px] font-extrabold shrink-0 ${item.badgeClass}`}
                   >
                     {item.badgeText}
                   </span>
@@ -653,7 +651,7 @@ export const CustomerHomePage: React.FC = () => {
           </div>
 
           {/* Right 7 Cols: Rincian Nota & Kuota Cucian */}
-          <div className="lg:col-span-7 bg-white rounded-2xl p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between">
+          <div className="lg:col-span-7 bg-white rounded-2xl p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between">
             <div className="flex items-start justify-between gap-2">
               <div>
                 <h2 className="text-[17px] font-extrabold text-[#111827] tracking-tight">
@@ -672,8 +670,50 @@ export const CustomerHomePage: React.FC = () => {
               </Link>
             </div>
 
-            <div className="mt-4 overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[540px]">
+            {/* Mobile Compact Card List (< 640px) */}
+            <div className="sm:hidden mt-4 space-y-2.5">
+              {orderReportRows.map((row) => (
+                <div
+                  key={row.id}
+                  onClick={() =>
+                    navigate(`/app/lacak/${row.orderNumber.replace('#', '')}`)
+                  }
+                  className="p-3 rounded-xl bg-[#F8FAFC] border border-slate-100 flex items-center justify-between gap-2"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[11px] font-bold text-[#94A3B8]">
+                        {row.orderNumber}
+                      </span>
+                      <span className="text-[10.5px] text-[#64748B]">{row.dateAdded}</span>
+                    </div>
+                    <p className="text-xs font-extrabold text-[#111827] truncate mt-0.5">
+                      {row.serviceName}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-xs font-black text-[#111827] block">
+                      {row.priceText}
+                    </span>
+                    <span
+                      className={`text-[10px] font-bold inline-flex items-center gap-0.5 ${
+                        row.statusType === 'in_process'
+                          ? 'text-[#0095FF]'
+                          : row.statusType === 'completed'
+                          ? 'text-[#10B981]'
+                          : 'text-[#F43F5E]'
+                      }`}
+                    >
+                      {row.statusLabel} <ArrowRight className="w-2.5 h-2.5" />
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table (>= 640px) */}
+            <div className="hidden sm:block mt-4 overflow-x-auto">
+              <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="text-[11px] font-semibold text-[#CBD5E1] border-b border-slate-100">
                     <th className="pb-3 pr-3 font-semibold">Layanan</th>
