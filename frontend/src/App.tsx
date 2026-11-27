@@ -1,38 +1,38 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-// Public Pages
-import { LandingPage } from './pages/public/LandingPage';
-import { TrackingPage } from './pages/public/TrackingPage';
-import { LoginPage } from './pages/public/LoginPage';
+// Public Pages (pages/public/<fitur>/<isi_fitur>)
+import { LandingPage } from './pages/public/landing/LandingPage';
+import { TrackingPage } from './pages/public/tracking/TrackingPage';
+import { LoginPage } from './pages/public/auth/LoginPage';
 
-// Superadmin Pages
-import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
-import { AdminPosPage } from './pages/admin/AdminPosPage';
-import { AdminProductionPage } from './pages/admin/AdminProductionPage';
-import { AdminDispatchPage } from './pages/admin/AdminDispatchPage';
-import { AdminPackagesPage } from './pages/admin/AdminPackagesPage';
-import { AdminFinancePage } from './pages/admin/AdminFinancePage';
-import { AdminStaffPage } from './pages/admin/AdminStaffPage';
+// Superadmin Pages (pages/superadmin/<fitur>/<isi_fitur>)
+import { AdminDashboardPage } from './pages/superadmin/dashboard/AdminDashboardPage';
+import { AdminPosPage } from './pages/superadmin/pos/AdminPosPage';
+import { AdminProductionPage } from './pages/superadmin/production/AdminProductionPage';
+import { AdminDispatchPage } from './pages/superadmin/dispatch/AdminDispatchPage';
+import { AdminPackagesPage } from './pages/superadmin/packages/AdminPackagesPage';
+import { AdminFinancePage } from './pages/superadmin/finance/AdminFinancePage';
+import { AdminStaffPage } from './pages/superadmin/staff/AdminStaffPage';
 
-// Customer Pages
-import { CustomerHomePage } from './pages/customer/CustomerHomePage';
-import { CustomerPickupPage } from './pages/customer/CustomerPickupPage';
-import { CustomerPackagesPage } from './pages/customer/CustomerPackagesPage';
-import { CustomerHistoryPage } from './pages/customer/CustomerHistoryPage';
+// Pelanggan Pages (pages/pelanggan/<fitur>/<isi_fitur>)
+import { CustomerHomePage } from './pages/pelanggan/dashboard/CustomerHomePage';
+import { CustomerPickupPage } from './pages/pelanggan/pickup/CustomerPickupPage';
+import { CustomerPackagesPage } from './pages/pelanggan/subscription/CustomerPackagesPage';
+import { CustomerHistoryPage } from './pages/pelanggan/history/CustomerHistoryPage';
 
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
+        {/* Role: Public */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/track" element={<TrackingPage />} />
         <Route path="/track/:resi" element={<TrackingPage />} />
         <Route path="/login" element={<LoginPage initialMode="login" />} />
         <Route path="/register" element={<LoginPage initialMode="register" />} />
 
-        {/* Superadmin Routes */}
+        {/* Role: Superadmin */}
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/admin/pos" element={<AdminPosPage />} />
         <Route path="/admin/antrean-produksi" element={<AdminProductionPage />} />
@@ -41,7 +41,7 @@ export const App: React.FC = () => {
         <Route path="/admin/laporan-keuangan" element={<AdminFinancePage />} />
         <Route path="/admin/manajemen-staf" element={<AdminStaffPage />} />
 
-        {/* Customer Portal Routes */}
+        {/* Role: Pelanggan */}
         <Route path="/app" element={<CustomerHomePage />} />
         <Route path="/app/pesan-jemput" element={<CustomerPickupPage />} />
         <Route path="/app/beli-paket" element={<CustomerPackagesPage />} />

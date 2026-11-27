@@ -1,110 +1,152 @@
-# kucek.id - Backend Service
+# kucek.id - Backend Service (Role & Feature-Driven MVC)
 
-Backend service untuk platform **kucek.id** dibangun menggunakan **Golang 1.22+**, **Gin Web Framework**, **GORM ORM**, dan **PostgreSQL 16+** dengan arsitektur **MVC (Model-View-Controller)** yang modular, clean code, dan berorientasi keamanan (OWASP Top 10).
+Backend service untuk platform **kucek.id** dibangun menggunakan **Golang 1.22+**, **Gin Web Framework**, **GORM ORM**, dan **PostgreSQL 16+** dengan pola arsitektur **`<layer>/<role>/<fitur>/<isi_fitur>.go`** yang modular, clean code, dan menerapkan prinsip SOLID.
 
 ---
 
-## 🏗️ Struktur Arsitektur MVC
+## 🏗️ Struktur Folder (`<layer>/<role>/<fitur>/<isi_fitur>`)
 
 ```
 backend/
-├── main.go                   # Entrypoint aplikasi HTTP server & bootstrap
+├── main.go                                                   # Entrypoint aplikasi (go run main.go)
 ├── config/
-│   ├── config.go             # Loader variabel lingkungan (.env)
-│   └── database.go           # Koneksi PostgreSQL, connection pool, auto-migration & seeder
-├── models/                   # GORM Data Models & Entity DB
-│   ├── user.go               # Entitas akun, bcrypt password, enum role (superadmin, pelanggan, dll)
-│   ├── customer.go           # Profil pelanggan, alamat, kuota langganan
-│   ├── package.go            # Katalog paket langganan kucek.id
-│   ├── order.go              # Transaksi pesanan, POS kiloan/satuan, relasi items
-│   └── tracking.go           # Riwayat timeline lacak resi per status produksi
-├── views/                    # DTOs, Serializers & JSON Formatters
-│   ├── response.go           # Standard format JSON (success, message, data, error)
-│   ├── auth_dto.go           # Request & response payload autentikasi
-│   └── order_dto.go          # Request & response payload pesanan & POS
-├── controllers/              # Handlers penerima HTTP request (Controller layer)
-│   ├── health_controller.go   # Healthcheck service & ping database
-│   ├── auth_controller.go     # Login, register, me, logout (JWT & HttpOnly)
-│   ├── order_controller.go    # Manajemen pesanan, POS kasir, update status produksi
-│   ├── customer_controller.go # Direktori pelanggan & kuota
-│   ├── package_controller.go  # Katalog paket & aktivasi langganan
-│   ├── tracking_controller.go # Tracking publik per nomor resi
-│   └── stats_controller.go    # KPI dashboard superadmin (pendapatan, antrean)
-├── routes/
-│   └── api.go                # Registrasi rute endpoint API v1 & middleware
-├── middlewares/              # Interceptors
-│   ├── cors.go               # Cross-Origin Resource Sharing (port frontend 5173/3000)
-│   ├── auth.go               # Verifikasi token JWT & claims
-│   └── logger.go             # Logging request waktu respon & IP
-├── .env.example              # Template variabel lingkungan
-├── go.mod                    # Modul Go & dependencies
-└── go.sum                    # Checksum dependensi Go
-```
-
----
-
-## 🗄️ Konfigurasi Database (PostgreSQL / DBeaver)
-
-Pastikan service PostgreSQL berjalan lokal pada port `5432` dengan database `kucek`:
-
-```env
-PORT=8080
-ENV=development
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=muhfaiizr
-DB_PASSWORD=admin
-DB_NAME=kucek
-DB_SSLMODE=disable
-JWT_SECRET=kucek_secret_key_jwt_superadmin_clean_2026_super_safe
-JWT_EXPIRY_HOURS=72
-CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
+│   ├── config.go                                             # Loader variabel lingkungan (.env)
+│   └── database.go                                           # Koneksi PostgreSQL, pool, delegasi migrasi & seeder
+├── controllers/                                              # Controller Layer per Role & Fitur
+│   ├── public/
+│   │   ├── auth/
+│   │   │   ├── login_controller.go                           # Login & Logout
+│   │   │   └── register_controller.go                        # Register & Me
+│   │   ├── catalog/
+│   │   │   └── package_catalog_controller.go                 # Katalog paket publik
+│   │   ├── health/
+│   │   │   └── health_controller.go                          # Healthcheck service & ping DB
+│   │   └── tracking/
+│   │       └── tracking_controller.go                        # Lacak resi publik
+│   ├── superadmin/
+│   │   ├── customers/
+│   │   │   └── customer_controller.go                        # Direktori pelanggan & detail
+│   │   ├── dashboard/
+│   │   │   └── stats_controller.go                           # KPI omzet & ringkasan antrean
+│   │   ├── dispatch/
+│   │   │   └── dispatch_controller.go                        # Jadwal penjemputan & pengantaran kurir
+│   │   ├── finance/
+│   │   │   └── finance_controller.go                         # Ringkasan laporan keuangan
+│   │   ├── packages/
+│   │   │   └── package_management_controller.go              # Kelola katalog paket langganan
+│   │   ├── pos/
+│   │   │   └── pos_order_controller.go                       # Kasir POS, list order & pembayaran
+│   │   ├── production/
+│   │   │   └── kanban_controller.go                          # Antrean produksi Kanban 6 tahap
+│   │   └── staff/
+│   │       └── staff_controller.go                           # Delegasi staf (kasir, operator, kurir)
+│   └── pelanggan/
+│       ├── dashboard/
+│       │   └── customer_hub_controller.go                    # Ringkasan kuota & cucian aktif pelanggan
+│       ├── history/
+│       │   └── order_history_controller.go                   # Riwayat pesanan pelanggan
+│       ├── pickup/
+│       │   └── book_pickup_controller.go                     # Booking penjemputan cucian
+│       └── subscription/
+│           └── buy_package_controller.go                     # Pembelian & aktivasi paket kuota
+├── models/                                                   # Model Layer per Role & Fitur
+│   ├── auth/
+│   │   └── account/
+│   │       └── user_model.go                                 # Entitas User & Role
+│   ├── public/
+│   │   └── tracking/
+│   │       └── tracking_model.go                             # Entitas TrackingLog
+│   ├── superadmin/
+│   │   ├── order/
+│   │   │   └── order_model.go                                # Entitas Order & OrderItem
+│   │   └── package_catalog/
+│   │       └── package_model.go                              # Entitas LaundryPackage
+│   └── pelanggan/
+│       └── profile/
+│           └── customer_model.go                             # Entitas Customer
+├── views/                                                    # View / DTO Layer per Role & Fitur
+│   ├── common/
+│   │   └── response/
+│   │       └── json_response.go                              # Formatter JSON standar API
+│   ├── public/
+│   │   ├── auth/
+│   │   │   └── auth_dto.go
+│   │   └── tracking/
+│   │       └── tracking_dto.go
+│   ├── superadmin/
+│   │   ├── packages/
+│   │   │   └── package_dto.go
+│   │   ├── pos/
+│   │   │   └── pos_order_dto.go
+│   │   ├── production/
+│   │   │   └── kanban_dto.go
+│   │   └── staff/
+│   │       └── staff_dto.go
+│   └── pelanggan/
+│       ├── pickup/
+│       │   └── pickup_dto.go
+│       └── subscription/
+│           └── buy_package_dto.go
+├── routes/                                                   # Route Layer per Role & Fitur
+│   ├── api.go                                                # Aggregator rute utama /api/v1
+│   ├── public/
+│   │   ├── auth/auth_routes.go
+│   │   ├── catalog/catalog_routes.go
+│   │   ├── health/health_routes.go
+│   │   └── tracking/tracking_routes.go
+│   ├── superadmin/
+│   │   ├── customers/customer_routes.go
+│   │   ├── dashboard/dashboard_routes.go
+│   │   ├── dispatch/dispatch_routes.go
+│   │   ├── finance/finance_routes.go
+│   │   ├── packages/package_routes.go
+│   │   ├── pos/pos_routes.go
+│   │   ├── production/production_routes.go
+│   │   └── staff/staff_routes.go
+│   └── pelanggan/
+│       ├── dashboard/hub_routes.go
+│       ├── history/history_routes.go
+│       ├── pickup/pickup_routes.go
+│       └── subscription/subscription_routes.go
+├── database/                                                 # Database Migrations & Seeds per Role
+│   ├── migrations/
+│   │   └── schema/
+│   │       └── auto_migrate.go
+│   └── seeds/
+│       ├── seeder.go
+│       ├── superadmin/
+│       │   ├── account/superadmin_seed.go                    # Seeder Superadmin (admin@kucek.id / admin)
+│       │   └── catalog/package_seed.go                       # Seeder 3 Paket Langganan
+│       └── pelanggan/
+│           ├── account/customer_seed.go                      # Seeder Pelanggan (user@kucek.id / user123)
+│           └── order/sample_order_seed.go                    # Seeder Order & Timeline KCK-2026-001
+└── middlewares/                                              # Middleware Layer per Scope & Fitur
+    ├── auth/
+    │   ├── jwt/jwt_middleware.go
+    │   └── role/role_guard_middleware.go
+    └── common/
+        ├── cors/cors_middleware.go
+        └── logger/request_logger.go
 ```
 
 ---
 
 ## 🚀 Cara Menjalankan Backend
 
-1. **Masuk ke folder backend:**
-   ```bash
-   cd backend
-   ```
-
-2. **Jalankan server pengembangan langsung:**
-   ```bash
-   go run main.go
-   ```
-
-3. **Build binary produksi (opsional):**
-   ```bash
-   go build -o bin/server main.go
-   ./bin/server
-   ```
-
-Server akan otomatis membuat tabel (Auto-Migration) di PostgreSQL dan melakukan seeding akun Superadmin bawaan jika database masih kosong.
+```bash
+cd backend
+go run main.go
+```
 
 ---
 
-## 🔑 Kredensial Bawaan (Default Seed)
+## 🔑 2 Akun Seeder Bawaan
 
-- **Superadmin:**
-  - Email: `admin@kucek.id`
-  - Password: `admin`
-  - Role: `superadmin` (Hak akses penuh seluruh modul)
-
----
-
-## 📡 Daftar Endpoint Utama
-
-| Metode | Endpoint | Deskripsi | Akses |
-|---|---|---|---|
-| `GET` | `/api/v1/health` | Ping status server & database | Publik |
-| `GET` | `/api/v1/packages` | Daftar paket langganan aktif | Publik |
-| `GET` | `/api/v1/track/:order_number` | Lacak pesanan via resi | Publik |
-| `POST` | `/api/v1/auth/login` | Login user & generate JWT token | Publik |
-| `POST` | `/api/v1/auth/register` | Pendaftaran pelanggan baru | Publik |
-| `GET` | `/api/v1/auth/me` | Profil pengguna saat ini | Authenticated |
-| `GET` | `/api/v1/orders` | Daftar semua pesanan | Superadmin / Staf |
-| `POST` | `/api/v1/orders` | Input transaksi baru (Kasir POS) | Superadmin / Staf |
-| `PATCH` | `/api/v1/orders/:id/status` | Update progres pengerjaan (Kanban) | Superadmin / Staf |
-| `GET` | `/api/v1/stats/dashboard` | Statistik omzet & antrean aktif | Superadmin |
+1. **Superadmin (`role: superadmin`)**
+   - Email: `admin@kucek.id`
+   - Password: `admin`
+   - Redirect: `/admin`
+2. **User Pelanggan (`role: pelanggan`)**
+   - Email: `user@kucek.id`
+   - Password: `user123`
+   - Redirect: `/app`

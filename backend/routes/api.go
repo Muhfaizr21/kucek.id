@@ -1,9 +1,33 @@
 package routes
 
 import (
-	"kucek-backend/controllers"
-	"kucek-backend/middlewares"
-	"kucek-backend/models"
+	"kucek-backend/middlewares/auth/jwt"
+	"kucek-backend/middlewares/auth/role"
+	"kucek-backend/middlewares/common/cors"
+	"kucek-backend/middlewares/common/logger"
+	"kucek-backend/models/auth/account"
+
+	// Public Routes by Feature
+	publicAuthRoutes "kucek-backend/routes/public/auth"
+	publicCatalogRoutes "kucek-backend/routes/public/catalog"
+	publicHealthRoutes "kucek-backend/routes/public/health"
+	publicTrackingRoutes "kucek-backend/routes/public/tracking"
+
+	// Pelanggan Routes by Feature
+	pelangganHubRoutes "kucek-backend/routes/pelanggan/dashboard"
+	pelangganHistoryRoutes "kucek-backend/routes/pelanggan/history"
+	pelangganPickupRoutes "kucek-backend/routes/pelanggan/pickup"
+	pelangganSubRoutes "kucek-backend/routes/pelanggan/subscription"
+
+	// Superadmin Routes by Feature
+	superadminCustomerRoutes "kucek-backend/routes/superadmin/customers"
+	superadminDashboardRoutes "kucek-backend/routes/superadmin/dashboard"
+	superadminDispatchRoutes "kucek-backend/routes/superadmin/dispatch"
+	superadminFinanceRoutes "kucek-backend/routes/superadmin/finance"
+	superadminPackageRoutes "kucek-backend/routes/superadmin/packages"
+	superadminPosRoutes "kucek-backend/routes/superadmin/pos"
+	superadminProductionRoutes "kucek-backend/routes/superadmin/production"
+	superadminStaffRoutes "kucek-backend/routes/superadmin/staff"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,59 +37,46 @@ func SetupRouter() *gin.Engine {
 
 	// Global Middlewares
 	r.Use(gin.Recovery())
-	r.Use(middlewares.RequestLogger())
-	r.Use(middlewares.CORSMiddleware())
-
-	// Controller Instances
-	healthCtrl := controllers.NewHealthController()
-	authCtrl := controllers.NewAuthController()
-	orderCtrl := controllers.NewOrderController()
-	customerCtrl := controllers.NewCustomerController()
-	packageCtrl := controllers.NewPackageController()
-	trackingCtrl := controllers.NewTrackingController()
-	statsCtrl := controllers.NewStatsController()
+	r.Use(logger.RequestLogger())
+	r.Use(cors.CORSMiddleware())
 
 	apiV1 := r.Group("/api/v1")
 	{
-		// 1. Public Endpoints
-		apiV1.GET("/health", healthCtrl.Check)
-		apiV1.GET("/track/:order_number", trackingCtrl.TrackOrder)
-		apiV1.GET("/packages", packageCtrl.List)
+		// 1. Role: Public (Tanpa Token)
+		publicHealthRoutes.RegisterHealthRoutes(apiV1)
+		publicAuthRoutes.RegisterPublicAuthRoutes(apiV1)
+		publicTrackingRoutes.RegisterTrackingRoutes(apiV1)
+		publicCatalogRoutes.RegisterCatalogRoutes(apiV1)
 
-		// Auth Public
-		authGroup := apiV1.Group("/auth")
-		{
-			authGroup.POST("/login", authCtrl.Login)
-			authGroup.POST("/register", authCtrl.Register)
-		}
-
-		// 2. Authenticated Endpoints
+		// 2. Authenticated Group
 		authProtected := apiV1.Group("")
-		authProtected.Use(middlewares.AuthMiddleware())
+		authProtected.Use(jwt.AuthMiddleware())
 		{
-			authProtected.GET("/auth/me", authCtrl.Me)
-			authProtected.POST("/auth/logout", authCtrl.Logout)
+			publicAuthRoutes.RegisterProtectedAuthRoutes(authProtected)
 
-			// Customer endpoints
-			authProtected.POST("/customer/buy-package", packageCtrl.Buy)
+			// Role: Pelanggan (per Fitur)
+			pelangganHubRoutes.RegisterCustomerHubRoutes(authProtected)
+			pelangganPickupRoutes.RegisterCustomerPickupRoutes(authProtected)
+			pelangganSubRoutes.RegisterCustomerSubscriptionRoutes(authProtected)
+			pelangganHistoryRoutes.RegisterCustomerHistoryRoutes(authProtected)
 
-			// 3. Superadmin & Internal Staf Endpoints
+			// Role: Superadmin & Staf Operasional (per Fitur)
 			adminGroup := authProtected.Group("")
-			adminGroup.Use(middlewares.RequireRoles(models.RoleSuperAdmin, models.RoleKasir, models.RoleOperator))
+			adminGroup.Use(role.RequireRoles(
+				account.RoleSuperAdmin,
+				account.RoleKasir,
+				account.RoleOperator,
+				account.RoleKurir,
+			))
 			{
-				// Order Management & POS
-				adminGroup.GET("/orders", orderCtrl.ListOrders)
-				adminGroup.POST("/orders", orderCtrl.CreateOrder)
-				adminGroup.GET("/orders/:id", orderCtrl.GetOrderByID)
-				adminGroup.PATCH("/orders/:id/status", orderCtrl.UpdateStatus)
-				adminGroup.PATCH("/orders/:id/payment", orderCtrl.UpdatePayment)
-
-				// Customer Directory
-				adminGroup.GET("/customers", customerCtrl.List)
-				adminGroup.GET("/customers/:id", customerCtrl.GetByID)
-
-				// Dashboard KPI
-				adminGroup.GET("/stats/dashboard", statsCtrl.GetDashboardStats)
+				superadminDashboardRoutes.RegisterDashboardRoutes(adminGroup)
+				superadminPosRoutes.RegisterPosRoutes(adminGroup)
+				superadminProductionRoutes.RegisterProductionRoutes(adminGroup)
+				superadminDispatchRoutes.RegisterDispatchRoutes(adminGroup)
+				superadminCustomerRoutes.RegisterCustomerRoutes(adminGroup)
+				superadminPackageRoutes.RegisterPackageManagementRoutes(adminGroup)
+				superadminFinanceRoutes.RegisterFinanceRoutes(adminGroup)
+				superadminStaffRoutes.RegisterStaffRoutes(adminGroup)
 			}
 		}
 	}
