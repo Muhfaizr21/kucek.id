@@ -5,17 +5,20 @@ import { AboutAndServicesSection } from '../../features/landing/components/About
 import { StoryAndProcessSection } from '../../features/landing/components/StoryAndProcessSection';
 import { ExpertsAndTestimonialsSection } from '../../features/landing/components/ExpertsAndTestimonialsSection';
 import { PricingAndBenefitsSection } from '../../features/landing/components/PricingAndBenefitsSection';
+import { CatalogAndScentSection } from '../../features/landing/components/CatalogAndScentSection';
+import { HygieneAndComparisonSection } from '../../features/landing/components/HygieneAndComparisonSection';
+import { DeliveryAndFaqSection } from '../../features/landing/components/DeliveryAndFaqSection';
 import { InteractiveKucekSection } from '../../features/landing/components/InteractiveKucekSection';
 import { LandingFooter } from '../../features/landing/components/LandingFooter';
 
 export const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#1A1918] selection:bg-[#C8430E] selection:text-white">
-      {/* 1. Header Navigation (NeatWash / kucek.id) */}
+      {/* 1. Header Navigation (kucek.id) */}
       <LandingHeader />
 
-      {/* 2. Hero Section: Delivering excellence every step ahead */}
       <main className="flex-1">
+        {/* 2. Hero Section */}
         <HeroSection />
 
         {/* 3. About Us (800+ Customers & 2x2 Grid) + 3 Bold Colored Service Cards */}
@@ -30,11 +33,20 @@ export const LandingPage: React.FC = () => {
         {/* 6. Tailored Laundry Packages (3 Pricing Cards) + Maximize Experience (4 Numbered Cards) */}
         <PricingAndBenefitsSection />
 
-        {/* 7. Extra Interactive kucek.id Tools: Live Resi Tracker & Smart Cost Calculator */}
+        {/* 7. KONTEN TAMBAHAN 1 & 2: Katalog Tarif Satuan Interaktif & Galeri Karakter Aroma Parfum */}
+        <CatalogAndScentSection />
+
+        {/* 8. KONTEN TAMBAHAN 3 & 5: Protokol Higienitas 1 Mesin 1 Pelanggan & Tabel Perbandingan */}
+        <HygieneAndComparisonSection />
+
+        {/* 9. KONTEN TAMBAHAN 4 & 6: Jadwal Rute Kurir Antar-Jemput & Tanya Jawab Operasional Nyata */}
+        <DeliveryAndFaqSection />
+
+        {/* 10. Alat Interaktif: Cek Status Resi Live & Kalkulator Estimasi Biaya */}
         <InteractiveKucekSection />
       </main>
 
-      {/* 8. Footer */}
+      {/* 11. Footer */}
       <LandingFooter />
     </div>
   );
