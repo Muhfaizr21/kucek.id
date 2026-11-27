@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AdminLayout } from '../../../components/layout/AdminLayout';
 import { CustomSelect, type SelectOption } from '../../../components/ui/Select';
+import { Pagination } from '../../../components/ui/Pagination';
 import {
   Plus,
   ShieldCheck,
@@ -70,6 +71,8 @@ export const AdminStaffPage: React.FC = () => {
   const [staffList, setStaffList] = useState<StaffRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
   const [showModal, setShowModal] = useState(false);
   const [editingStaff, setEditingStaff] = useState<StaffRecord | null>(null);
@@ -253,7 +256,9 @@ export const AdminStaffPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs">
-                {staffList.map((st) => {
+                {staffList
+                  .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                  .map((st) => {
                   const badge = formatRoleBadge(st.role);
                   return (
                     <tr key={st.id} className="hover:bg-slate-50/80">
@@ -322,6 +327,17 @@ export const AdminStaffPage: React.FC = () => {
                 })}
               </tbody>
             </table>
+          </div>
+          <div className="px-5 pb-4">
+            <Pagination
+              currentPage={currentPage}
+              totalItems={staffList.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+              pageSizeOptions={[4, 5, 10]}
+              itemLabel="staf operasional"
+            />
           </div>
         </div>
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AdminLayout } from '../../../components/layout/AdminLayout';
 import { CustomSelect, type SelectOption } from '../../../components/ui/Select';
+import { Pagination } from '../../../components/ui/Pagination';
 import {
   Truck,
   MapPin,
@@ -48,6 +49,8 @@ export const AdminDispatchPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [assigningId, setAssigningId] = useState<number | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(6);
 
   const showToast = (msg: string) => {
     setToastMsg(msg);
@@ -190,7 +193,9 @@ export const AdminDispatchPage: React.FC = () => {
 
         {/* Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {orders.map((ord) => {
+          {orders
+            .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+            .map((ord) => {
             const assignedCourier = extractAssignedCourier(ord.notes);
             const currentSelection =
               selectedCourierMap[ord.id] ||
@@ -318,6 +323,18 @@ export const AdminDispatchPage: React.FC = () => {
               </div>
             );
           })}
+        </div>
+
+        <div className="bg-white px-5 pb-4 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
+          <Pagination
+            currentPage={currentPage}
+            totalItems={orders.length}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+            pageSizeOptions={[3, 6, 9]}
+            itemLabel="jadwal antar-jemput"
+          />
         </div>
       </div>
     </AdminLayout>

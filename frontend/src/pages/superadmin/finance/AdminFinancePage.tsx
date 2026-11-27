@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AdminLayout } from '../../../components/layout/AdminLayout';
 import { CustomSelect, type SelectOption } from '../../../components/ui/Select';
+import { Pagination } from '../../../components/ui/Pagination';
 import {
   Plus,
   TrendingUp,
@@ -13,9 +14,7 @@ import {
   RefreshCw,
   CreditCard,
   AlertCircle,
-  ArrowUpRight,
-  ArrowDownRight,
-  PieChart,
+  Download,
 } from 'lucide-react';
 import { getAuthToken } from '../../../services/authService';
 
@@ -54,16 +53,6 @@ interface FinanceSummary {
   net_profit: number;
   profit_margin: number;
   total_transactions: number;
-  service_breakdown: {
-    service_type: string;
-    revenue: number;
-    count: number;
-  }[];
-  payment_breakdown: {
-    payment_method: string;
-    revenue: number;
-    count: number;
-  }[];
   expense_breakdown: {
     category: string;
     total: number;
@@ -126,44 +115,51 @@ const categoryLabel = (cat: string) => {
     case 'BAHAN_BAKU':
       return {
         label: 'Deterjen & Parfum',
-        cls: 'bg-sky-50 text-[#0095FF]',
-        bar: 'bg-[#0095FF]',
+        cls: 'bg-blue-50 text-[#2563EB]',
+        bar: 'bg-[#2563EB]',
+        dot: 'bg-[#2563EB]',
       };
     case 'UTILITAS':
       return {
         label: 'Listrik, Air & Gas',
         cls: 'bg-amber-50 text-amber-600',
         bar: 'bg-amber-500',
+        dot: 'bg-amber-500',
       };
     case 'KEMASAN':
       return {
         label: 'Plastik & Hanger',
         cls: 'bg-purple-50 text-purple-600',
         bar: 'bg-purple-500',
+        dot: 'bg-purple-500',
       };
     case 'LOGISTIK_KURIR':
       return {
         label: 'BBM & Kurir',
         cls: 'bg-emerald-50 text-emerald-600',
         bar: 'bg-emerald-500',
+        dot: 'bg-emerald-500',
       };
     case 'PERAWATAN_MESIN':
       return {
         label: 'Perawatan Mesin',
         cls: 'bg-rose-50 text-rose-600',
         bar: 'bg-rose-500',
+        dot: 'bg-rose-500',
       };
     case 'GAJI_SDM':
       return {
         label: 'Gaji & Insentif SDM',
         cls: 'bg-indigo-50 text-indigo-600',
         bar: 'bg-indigo-500',
+        dot: 'bg-indigo-500',
       };
     default:
       return {
         label: cat,
         cls: 'bg-slate-100 text-slate-600',
         bar: 'bg-slate-500',
+        dot: 'bg-slate-400',
       };
   }
 };
@@ -177,6 +173,12 @@ export const AdminFinancePage: React.FC = () => {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  // Pagination state for Ledger
+  const [expPage, setExpPage] = useState(1);
+  const [expPageSize, setExpPageSize] = useState(5);
+  const [incPage, setIncPage] = useState(1);
+  const [incPageSize, setIncPageSize] = useState(5);
 
   // Form state for new expense
   const [expTitle, setExpTitle] = useState('');
@@ -203,7 +205,7 @@ export const AdminFinancePage: React.FC = () => {
         }
       }
     } catch {
-      // handled gracefully
+      // fallback handled
     } finally {
       setLoading(false);
     }
@@ -279,22 +281,6 @@ export const AdminFinancePage: React.FC = () => {
   const profitMargin =
     totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : '66.7';
 
-  // Monthly / Weekly Cashflow Comparison Chart Data (Income vs Expense)
-  const cashflowPeriods = [
-    { label: 'Minggu 1', income: 210000, expense: 68000 },
-    { label: 'Minggu 2', income: 245000, expense: 85000 },
-    { label: 'Minggu 3', income: 195000, expense: 42000 },
-    {
-      label: 'Minggu Ini',
-      income: Math.max(orderRevenue, 220000),
-      expense: Math.max(totalExpenses - 195000, 85000),
-    },
-  ];
-  const maxPeriodValue = Math.max(
-    ...cashflowPeriods.map((p) => Math.max(p.income, p.expense)),
-    1
-  );
-
   const expenseBreakdown = summary?.expense_breakdown?.length
     ? summary.expense_breakdown
     : [
@@ -305,39 +291,49 @@ export const AdminFinancePage: React.FC = () => {
         { category: 'LOGISTIK_KURIR', total: 35000, count: 1 },
       ];
 
+  const allExpenses = summary?.expenses || [];
+  const paginatedExpenses = allExpenses.slice(
+    (expPage - 1) * expPageSize,
+    expPage * expPageSize
+  );
+
+  const allIncomes = summary?.recent_orders || [];
+  const paginatedIncomes = allIncomes.slice(
+    (incPage - 1) * incPageSize,
+    incPage * incPageSize
+  );
+
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-5">
         {toastMsg && (
           <div className="p-4 rounded-2xl bg-emerald-600 text-white text-xs font-bold flex items-center justify-between shadow-lg">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{toastMsg}</span>
             </div>
-            <button
-              onClick={() => setToastMsg(null)}
-              className="text-white/80 hover:text-white"
-            >
+            <button onClick={() => setToastMsg(null)}>
               <X className="w-4 h-4" />
             </button>
           </div>
         )}
 
-        {/* Top Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)]">
+        {/* Wylro-Style Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
               Laporan Keuangan & Arus Kas
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5">
               Transparansi pemasukan kasir POS, langganan kuota member, rincian
               biaya operasional, dan perhitungan laba bersih
             </p>
           </div>
-          <div className="flex items-center gap-2.5">
+
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={fetchFinance}
-              className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+              className="px-3.5 py-2 rounded-xl bg-white border border-slate-200/90 hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1.5 shadow-2xs cursor-pointer"
             >
               <RefreshCw
                 className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`}
@@ -345,8 +341,15 @@ export const AdminFinancePage: React.FC = () => {
               <span>Refresh</span>
             </button>
             <button
+              onClick={() => window.print()}
+              className="px-3.5 py-2 rounded-xl bg-white border border-slate-200/90 hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1.5 shadow-2xs cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5 text-slate-400" />
+              <span>Ekspor PDF</span>
+            </button>
+            <button
               onClick={() => setShowExpenseModal(true)}
-              className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs sm:text-sm shadow-[0_6px_16px_-4px_rgba(225,29,72,0.4)] flex items-center gap-1.5 transition cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Catat Pengeluaran Toko</span>
@@ -354,252 +357,356 @@ export const AdminFinancePage: React.FC = () => {
           </div>
         </div>
 
-        {/* 4 Financial KPI Cards */}
+        {/* 4 Wylro-Style Financial KPI Cards with Progress Bars */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)]">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Total Pemasukan Kas
-              </span>
-              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                <ArrowUpRight className="w-4 h-4" />
+          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col justify-between">
+            <div>
+              <div className="flex items-start gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0">
+                  <TrendingUp className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-[11px] font-semibold text-slate-400 block">
+                    Total Pemasukan Kas
+                  </span>
+                  <p className="text-lg font-black text-slate-900">
+                    {formatRupiah(totalRevenue)}
+                  </p>
+                </div>
               </div>
+              <p className="text-[11px] text-emerald-600 font-bold mt-2.5">
+                ↗ Nota: {formatRupiah(orderRevenue)} • Paket:{' '}
+                {formatRupiah(packageRevenue)}
+              </p>
             </div>
-            <p className="text-2xl font-black text-emerald-600 mt-2">
-              {formatRupiah(totalRevenue)}
-            </p>
-            <p className="text-[11px] text-slate-400 mt-1">
-              Nota Cuci: <b>{formatRupiah(orderRevenue)}</b> • Paket:{' '}
-              <b>{formatRupiah(packageRevenue)}</b>
-            </p>
+            <div className="mt-3 flex items-center gap-2">
+              <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  style={{ width: '92%' }}
+                  className="h-full rounded-full bg-[#2563EB]"
+                />
+              </div>
+              <span className="text-[10.5px] font-extrabold text-slate-700">
+                92%
+              </span>
+            </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)]">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Total Pengeluaran Toko
-              </span>
-              <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
-                <ArrowDownRight className="w-4 h-4" />
+          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col justify-between">
+            <div>
+              <div className="flex items-start gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+                  <TrendingDown className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-[11px] font-semibold text-slate-400 block">
+                    Pengeluaran Operasional
+                  </span>
+                  <p className="text-lg font-black text-slate-900">
+                    {formatRupiah(totalExpenses)}
+                  </p>
+                </div>
               </div>
+              <p className="text-[11px] text-rose-600 font-bold mt-2.5">
+                ↗ {allExpenses.length} pos pengeluaran tercatat
+              </p>
             </div>
-            <p className="text-2xl font-black text-rose-600 mt-2">
-              {formatRupiah(totalExpenses)}
-            </p>
-            <p className="text-[11px] text-slate-400 mt-1">
-              {summary?.expenses?.length || 5} transaksi biaya operasional
-              tercatat
-            </p>
+            <div className="mt-3 flex items-center gap-2">
+              <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  style={{ width: '43%' }}
+                  className="h-full rounded-full bg-rose-500"
+                />
+              </div>
+              <span className="text-[10.5px] font-extrabold text-slate-700">
+                43%
+              </span>
+            </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)]">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Laba Bersih (Net Profit)
-              </span>
-              <div className="w-8 h-8 rounded-xl bg-sky-50 text-[#0095FF] flex items-center justify-center">
-                <Wallet className="w-4 h-4" />
+          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col justify-between">
+            <div>
+              <div className="flex items-start gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                  <Wallet className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-[11px] font-semibold text-slate-400 block">
+                    Laba Bersih (Net Profit)
+                  </span>
+                  <p className="text-lg font-black text-slate-900">
+                    {formatRupiah(netProfit)}
+                  </p>
+                </div>
               </div>
+              <p className="text-[11px] text-emerald-600 font-bold mt-2.5">
+                Margin Keuntungan Bersih: {profitMargin}%
+              </p>
             </div>
-            <p className="text-2xl font-black text-slate-900 mt-2">
-              {formatRupiah(netProfit)}
-            </p>
-            <p className="text-[11px] text-emerald-600 font-bold mt-1">
-              Margin Keuntungan Bersih: {profitMargin}%
-            </p>
+            <div className="mt-3 flex items-center gap-2">
+              <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  style={{ width: '100%' }}
+                  className="h-full rounded-full bg-emerald-500"
+                />
+              </div>
+              <span className="text-[10.5px] font-extrabold text-slate-700">
+                108%
+              </span>
+            </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)]">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Tagihan Belum Lunas
-              </span>
-              <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                <AlertCircle className="w-4 h-4" />
+          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col justify-between">
+            <div>
+              <div className="flex items-start gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                  <AlertCircle className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-[11px] font-semibold text-slate-400 block">
+                    Piutang / Belum Lunas
+                  </span>
+                  <p className="text-lg font-black text-slate-900">
+                    {formatRupiah(unpaidAmount)}
+                  </p>
+                </div>
               </div>
+              <p className="text-[11px] text-slate-400 mt-2.5">
+                Bayar saat cucian diambil / COD kurir
+              </p>
             </div>
-            <p className="text-2xl font-black text-amber-600 mt-2">
-              {formatRupiah(unpaidAmount)}
-            </p>
-            <p className="text-[11px] text-slate-400 mt-1">
-              Piutang cucian bayar saat ambil / COD kurir
-            </p>
+            <div className="mt-3 flex items-center gap-2">
+              <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  style={{ width: '12%' }}
+                  className="h-full rounded-full bg-amber-500"
+                />
+              </div>
+              <span className="text-[10.5px] font-extrabold text-slate-700">
+                12%
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* FINANCIAL ANALYTICS CHARTS ROW: Perbandingan Arus Kas Masuk vs Keluar + Struktur Biaya & Kanal Pembayaran */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          {/* Left 7 Cols: Grafik Perbandingan Kas Masuk vs Pengeluaran Operasional */}
-          <div className="lg:col-span-7 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] flex flex-col justify-between">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        {/* WYLRO CHARTS ROW: SVG Area Evolution Chart (7 Cols) + Expense Donut Chart (5 Cols) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* Left 7 Cols: Evolusi Arus Kas Masuk vs Pengeluaran */}
+          <div className="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col justify-between">
+            <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base font-extrabold text-slate-900">
-                  Dinamika Arus Kas Masuk vs Biaya Operasional
+                <h2 className="text-sm font-extrabold text-slate-900">
+                  Evolusi Arus Kas Masuk dan Pengeluaran Toko
                 </h2>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Perbandingan pendapatan mingguan terhadap beban biaya
-                  produksi & logistik outlet
+                  Kurva pertumbuhan pendapatan kasir terhadap biaya operasional
+                  bulanan
                 </p>
               </div>
-              <div className="flex items-center gap-3 text-xs font-bold">
-                <span className="flex items-center gap-1.5 text-emerald-600">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />{' '}
-                  Pemasukan
+              <div className="flex items-center gap-4 text-xs font-bold">
+                <span className="flex items-center gap-1.5 text-slate-600">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#2563EB]" />{' '}
+                  Kas Masuk
                 </span>
-                <span className="flex items-center gap-1.5 text-rose-600">
+                <span className="flex items-center gap-1.5 text-slate-600">
                   <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />{' '}
-                  Pengeluaran
+                  Biaya Keluar
                 </span>
               </div>
             </div>
 
-            {/* Dual Bar Comparison Chart */}
-            <div className="mt-6 grid grid-cols-4 gap-4 items-end h-44 border-b border-slate-100 pb-3 px-2">
-              {cashflowPeriods.map((period) => {
-                const incPct = Math.round(
-                  (period.income / maxPeriodValue) * 100
-                );
-                const expPct = Math.round(
-                  (period.expense / maxPeriodValue) * 100
-                );
-                return (
-                  <div
-                    key={period.label}
-                    className="h-full flex flex-col items-center justify-end"
-                  >
-                    <div className="w-full h-full flex items-end justify-center gap-2">
-                      <div className="flex flex-col items-center justify-end h-full w-7 sm:w-9 group relative">
-                        <span className="text-[9.5px] font-extrabold text-emerald-600 mb-1">
-                          {Math.round(period.income / 1000)}rb
-                        </span>
-                        <div
-                          style={{ height: `${Math.max(incPct, 15)}%` }}
-                          className="w-full rounded-t-lg bg-emerald-500 group-hover:bg-emerald-600 transition-all"
-                        />
-                      </div>
-                      <div className="flex flex-col items-center justify-end h-full w-7 sm:w-9 group relative">
-                        <span className="text-[9.5px] font-extrabold text-rose-600 mb-1">
-                          {Math.round(period.expense / 1000)}rb
-                        </span>
-                        <div
-                          style={{ height: `${Math.max(expPct, 12)}%` }}
-                          className="w-full rounded-t-lg bg-rose-500 group-hover:bg-rose-600 transition-all"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <div className="mt-4">
+              <svg
+                viewBox="0 0 460 165"
+                className="w-full h-44 overflow-visible"
+              >
+                <defs>
+                  <linearGradient id="finIncGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#2563EB" stopOpacity="0.22" />
+                    <stop offset="100%" stopColor="#2563EB" stopOpacity="0.0" />
+                  </linearGradient>
+                  <linearGradient id="finExpGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#F43F5E" stopOpacity="0.15" />
+                    <stop offset="100%" stopColor="#F43F5E" stopOpacity="0.0" />
+                  </linearGradient>
+                </defs>
 
-            <div className="grid grid-cols-4 gap-4 text-center text-xs font-bold text-slate-500 pt-2.5">
-              {cashflowPeriods.map((p) => (
-                <span key={p.label}>{p.label}</span>
-              ))}
-            </div>
+                {[
+                  { y: 18, label: '900rb' },
+                  { y: 48, label: '650rb' },
+                  { y: 78, label: '450rb' },
+                  { y: 108, label: '250rb' },
+                  { y: 145, label: '0' },
+                ].map((g) => (
+                  <g key={g.y}>
+                    <text
+                      x="0"
+                      y={g.y + 3}
+                      className="fill-slate-400 text-[9px] font-semibold"
+                    >
+                      {g.label}
+                    </text>
+                    <line
+                      x1="36"
+                      y1={g.y}
+                      x2="450"
+                      y2={g.y}
+                      stroke="#F1F5F9"
+                      strokeWidth="1"
+                    />
+                  </g>
+                ))}
 
-            {/* Financial Health Analysis Footer */}
-            <div className="mt-5 pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-              <div className="p-3 rounded-xl bg-slate-50">
-                <span className="text-[10.5px] text-slate-400 block">
-                  Rasio Biaya Operasional (BOPO)
-                </span>
-                <span className="font-black text-slate-900 text-sm">
-                  {totalRevenue > 0
-                    ? ((totalExpenses / totalRevenue) * 100).toFixed(1)
-                    : '33.3'}
-                  % dari Omzet
-                </span>
-              </div>
-              <div className="p-3 rounded-xl bg-slate-50">
-                <span className="text-[10.5px] text-slate-400 block">
-                  Sumber Kas Terbesar
-                </span>
-                <span className="font-black text-[#0095FF] text-sm">
-                  Paket Kuota & Kiloan
-                </span>
-              </div>
-              <div className="p-3 rounded-xl bg-slate-50">
-                <span className="text-[10.5px] text-slate-400 block">
-                  Metode Pencairan Dominan
-                </span>
-                <span className="font-black text-emerald-600 text-sm">
-                  QRIS & Transfer Instan
-                </span>
+                <path
+                  d="M 40 125 L 105 98 L 175 84 L 245 68 L 315 52 L 385 36 L 448 22 L 448 145 L 40 145 Z"
+                  fill="url(#finIncGrad)"
+                />
+                <path
+                  d="M 40 125 L 105 98 L 175 84 L 245 68 L 315 52 L 385 36 L 448 22"
+                  fill="none"
+                  stroke="#2563EB"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+
+                <path
+                  d="M 40 138 L 105 130 L 175 124 L 245 127 L 315 118 L 385 112 L 448 104 L 448 145 L 40 145 Z"
+                  fill="url(#finExpGrad)"
+                />
+                <path
+                  d="M 40 138 L 105 130 L 175 124 L 245 127 L 315 118 L 385 112 L 448 104"
+                  fill="none"
+                  stroke="#F43F5E"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+
+              <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400 pl-8 pr-1">
+                <span>1 Nov</span>
+                <span>6 Nov</span>
+                <span>11 Nov</span>
+                <span>16 Nov</span>
+                <span>21 Nov</span>
+                <span>26 Nov</span>
+                <span>30 Nov</span>
               </div>
             </div>
           </div>
 
-          {/* Right 5 Cols: Komposisi Pos Pengeluaran Toko */}
-          <div className="lg:col-span-5 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] flex flex-col justify-between">
+          {/* Right 5 Cols: Distribusi Pos Pengeluaran Toko (Wylro Multi-Segment Donut) */}
+          <div className="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between">
-                <h2 className="text-base font-extrabold text-slate-900">
-                  Alokasi Pos Pengeluaran Toko
-                </h2>
-                <PieChart className="w-4 h-4 text-rose-500" />
-              </div>
+              <h2 className="text-sm font-extrabold text-slate-900">
+                Distribusi Biaya Operasional Toko
+              </h2>
               <p className="text-xs text-slate-400 mt-0.5">
-                Porsi penyerapan biaya operasional berdasarkan kategori
-                kebutuhan
+                Proporsi pengeluaran berdasarkan kategori kebutuhan outlet
               </p>
+            </div>
 
-              <div className="mt-5 space-y-3.5">
+            <div className="my-3 flex items-center justify-between gap-4">
+              <div className="relative w-36 h-36 shrink-0 flex items-center justify-center">
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="46"
+                    fill="transparent"
+                    stroke="#F1F5F9"
+                    strokeWidth="15"
+                  />
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="46"
+                    fill="transparent"
+                    stroke="#F59E0B"
+                    strokeWidth="15"
+                    strokeDasharray="88 289"
+                    strokeDashoffset="0"
+                  />
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="46"
+                    fill="transparent"
+                    stroke="#2563EB"
+                    strokeWidth="15"
+                    strokeDasharray="70 289"
+                    strokeDashoffset="-90"
+                  />
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="46"
+                    fill="transparent"
+                    stroke="#F43F5E"
+                    strokeWidth="15"
+                    strokeDasharray="52 289"
+                    strokeDashoffset="-162"
+                  />
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="46"
+                    fill="transparent"
+                    stroke="#8B5CF6"
+                    strokeWidth="15"
+                    strokeDasharray="43 289"
+                    strokeDashoffset="-216"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                  <span className="text-xs font-black text-slate-900">
+                    {formatRupiah(totalExpenses)}
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-semibold">
+                    Total Biaya
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex-1 space-y-2 min-w-0">
                 {expenseBreakdown.map((item) => {
                   const cat = categoryLabel(item.category);
                   const pct =
                     totalExpenses > 0
-                      ? Math.round((item.total / totalExpenses) * 100)
-                      : 20;
+                      ? ((item.total / totalExpenses) * 100).toFixed(1)
+                      : '20.0';
                   return (
-                    <div key={item.category}>
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`px-2 py-0.5 rounded-md text-[10px] font-extrabold ${cat.cls}`}
-                          >
-                            {cat.label}
-                          </span>
-                          <span className="text-[11px] text-slate-400">
-                            ({item.count}x)
-                          </span>
-                        </div>
-                        <span className="font-black text-slate-900">
-                          {formatRupiah(item.total)}{' '}
-                          <span className="text-slate-400 font-semibold">
-                            ({pct}%)
-                          </span>
+                    <div key={item.category} className="text-[11px]">
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className={`w-2 h-2 rounded-full shrink-0 ${cat.dot}`}
+                        />
+                        <span className="font-bold text-slate-800 truncate">
+                          {cat.label}
                         </span>
                       </div>
-                      <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                        <div
-                          style={{ width: `${Math.max(pct, 6)}%` }}
-                          className={`h-full rounded-full ${cat.bar}`}
-                        />
-                      </div>
+                      <p className="text-[10.5px] text-slate-400 pl-3.5">
+                        {formatRupiah(item.total)} ({pct}%)
+                      </p>
                     </div>
                   );
                 })}
               </div>
             </div>
 
-            <div className="mt-5 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs">
-              <span className="text-slate-400">
-                Pos Terbesar:{' '}
-                <b className="text-slate-700">Listrik, Air & Deterjen</b>
-              </span>
+            <div className="pt-2 border-t border-slate-100 text-center">
               <button
+                type="button"
                 onClick={() => setShowExpenseModal(true)}
-                className="text-rose-600 font-bold hover:underline cursor-pointer"
+                className="text-xs font-bold text-[#2563EB] hover:underline cursor-pointer"
               >
-                + Tambah Catatan Biaya
+                + Tambah catatan pengeluaran baru
               </button>
             </div>
           </div>
         </div>
 
-        {/* Buku Kas Digital: Tab Jurnal Pengeluaran & Jurnal Pemasukan */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] p-6">
+        {/* Buku Kas Digital dengan Pagination */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] p-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
             <div className="flex items-center gap-2">
               <button
@@ -607,157 +714,175 @@ export const AdminFinancePage: React.FC = () => {
                 onClick={() => setActiveLedgerTab('expenses')}
                 className={`px-4 py-2 rounded-xl text-xs font-extrabold transition cursor-pointer flex items-center gap-1.5 ${
                   activeLedgerTab === 'expenses'
-                    ? 'bg-rose-600 text-white shadow-sm'
+                    ? 'bg-rose-600 text-white shadow-xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <TrendingDown className="w-3.5 h-3.5" />
-                <span>
-                  Jurnal Pengeluaran Toko ({summary?.expenses?.length || 0})
-                </span>
+                <span>Jurnal Pengeluaran Toko ({allExpenses.length})</span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveLedgerTab('income')}
                 className={`px-4 py-2 rounded-xl text-xs font-extrabold transition cursor-pointer flex items-center gap-1.5 ${
                   activeLedgerTab === 'income'
-                    ? 'bg-emerald-600 text-white shadow-sm'
+                    ? 'bg-[#2563EB] text-white shadow-xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <TrendingUp className="w-3.5 h-3.5" />
-                <span>
-                  Jurnal Pemasukan Nota ({summary?.recent_orders?.length || 0})
-                </span>
+                <span>Jurnal Pemasukan Nota ({allIncomes.length})</span>
               </button>
             </div>
 
             <span className="text-xs text-slate-400 font-medium">
-              Seluruh mutasi tersimpan otomatis di database PostgreSQL
+              Tersinkronisasi langsung dengan database PostgreSQL
             </span>
           </div>
 
           {activeLedgerTab === 'expenses' ? (
-            <div className="overflow-x-auto mt-4">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase">
-                    <th className="py-3 px-3">Tanggal</th>
-                    <th className="py-3 px-3">Keterangan Pengeluaran</th>
-                    <th className="py-3 px-3">Kategori</th>
-                    <th className="py-3 px-3">Sumber Dana / PIC</th>
-                    <th className="py-3 px-3 text-right">Nominal Biaya</th>
-                    <th className="py-3 px-3 text-right">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-xs">
-                  {(summary?.expenses || []).map((exp) => {
-                    const cat = categoryLabel(exp.category);
-                    return (
-                      <tr key={exp.id} className="hover:bg-slate-50/80">
-                        <td className="py-3.5 px-3 text-slate-500 font-semibold whitespace-nowrap">
-                          {new Date(exp.expense_date).toLocaleDateString(
-                            'id-ID',
-                            {
-                              day: '2-digit',
-                              month: 'short',
-                              year: 'numeric',
-                            }
-                          )}
-                        </td>
-                        <td className="py-3.5 px-3">
-                          <p className="font-bold text-slate-900">
-                            {exp.title}
-                          </p>
-                          {exp.notes && (
-                            <p className="text-[11px] text-slate-400 mt-0.5">
-                              {exp.notes}
+            <>
+              <div className="overflow-x-auto mt-3">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-100 text-[10.5px] font-bold text-slate-400 uppercase">
+                      <th className="py-3 px-3">Tanggal</th>
+                      <th className="py-3 px-3">Keterangan Pengeluaran</th>
+                      <th className="py-3 px-3">Kategori</th>
+                      <th className="py-3 px-3">Sumber Dana / PIC</th>
+                      <th className="py-3 px-3 text-right">Nominal Biaya</th>
+                      <th className="py-3 px-3 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-xs">
+                    {paginatedExpenses.map((exp) => {
+                      const cat = categoryLabel(exp.category);
+                      return (
+                        <tr key={exp.id} className="hover:bg-slate-50/80">
+                          <td className="py-3.5 px-3 text-slate-500 font-semibold whitespace-nowrap">
+                            {new Date(exp.expense_date).toLocaleDateString(
+                              'id-ID',
+                              {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric',
+                              }
+                            )}
+                          </td>
+                          <td className="py-3.5 px-3">
+                            <p className="font-bold text-slate-900">
+                              {exp.title}
                             </p>
-                          )}
+                            {exp.notes && (
+                              <p className="text-[11px] text-slate-400 mt-0.5">
+                                {exp.notes}
+                              </p>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-3">
+                            <span
+                              className={`px-2.5 py-1 rounded-full text-[10.5px] font-extrabold ${cat.cls}`}
+                            >
+                              {cat.label}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-3">
+                            <p className="font-bold text-slate-700">
+                              {exp.payment_method}
+                            </p>
+                            <p className="text-[10.5px] text-slate-400">
+                              Oleh: {exp.pic}
+                            </p>
+                          </td>
+                          <td className="py-3.5 px-3 text-right font-black text-rose-600 whitespace-nowrap">
+                            - {formatRupiah(exp.amount)}
+                          </td>
+                          <td className="py-3.5 px-3 text-right">
+                            <button
+                              onClick={() => handleDeleteExpense(exp.id)}
+                              title="Hapus catatan pengeluaran"
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <Pagination
+                currentPage={expPage}
+                totalItems={allExpenses.length}
+                pageSize={expPageSize}
+                onPageChange={setExpPage}
+                onPageSizeChange={setExpPageSize}
+                pageSizeOptions={[4, 5, 10]}
+                itemLabel="catatan pengeluaran"
+              />
+            </>
+          ) : (
+            <>
+              <div className="overflow-x-auto mt-3">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-100 text-[10.5px] font-bold text-slate-400 uppercase">
+                      <th className="py-3 px-3">No. Resi</th>
+                      <th className="py-3 px-3">Pelanggan</th>
+                      <th className="py-3 px-3">Layanan</th>
+                      <th className="py-3 px-3">Metode</th>
+                      <th className="py-3 px-3">Status</th>
+                      <th className="py-3 px-3 text-right">Kas Masuk</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-xs">
+                    {paginatedIncomes.map((ord) => (
+                      <tr key={ord.id} className="hover:bg-slate-50/80">
+                        <td className="py-3.5 px-3 font-mono font-bold text-[#2563EB]">
+                          {ord.order_number}
                         </td>
-                        <td className="py-3.5 px-3">
-                          <span
-                            className={`px-2.5 py-1 rounded-full text-[10.5px] font-extrabold ${cat.cls}`}
-                          >
-                            {cat.label}
+                        <td className="py-3.5 px-3 font-bold text-slate-900">
+                          {ord.customer?.name || 'Walk-in'}
+                        </td>
+                        <td className="py-3.5 px-3 capitalize text-slate-600">
+                          {ord.service_type} ({ord.weight_kg} Kg)
+                        </td>
+                        <td className="py-3.5 px-3 uppercase font-bold text-slate-700">
+                          <span className="inline-flex items-center gap-1">
+                            <CreditCard className="w-3.5 h-3.5 text-[#2563EB]" />{' '}
+                            {ord.payment_method}
                           </span>
                         </td>
                         <td className="py-3.5 px-3">
-                          <p className="font-bold text-slate-700">
-                            {exp.payment_method}
-                          </p>
-                          <p className="text-[10.5px] text-slate-400">
-                            Oleh: {exp.pic}
-                          </p>
+                          {ord.payment_status === 'paid' ? (
+                            <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold text-[10.5px]">
+                              Lunas
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 font-bold text-[10.5px]">
+                              Belum Lunas
+                            </span>
+                          )}
                         </td>
-                        <td className="py-3.5 px-3 text-right font-black text-rose-600 whitespace-nowrap">
-                          - {formatRupiah(exp.amount)}
-                        </td>
-                        <td className="py-3.5 px-3 text-right">
-                          <button
-                            onClick={() => handleDeleteExpense(exp.id)}
-                            title="Hapus catatan pengeluaran"
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                        <td className="py-3.5 px-3 text-right font-black text-emerald-600">
+                          + {formatRupiah(ord.total_amount)}
                         </td>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="overflow-x-auto mt-4">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase">
-                    <th className="py-3 px-3">No. Resi</th>
-                    <th className="py-3 px-3">Pelanggan</th>
-                    <th className="py-3 px-3">Layanan</th>
-                    <th className="py-3 px-3">Metode</th>
-                    <th className="py-3 px-3">Status</th>
-                    <th className="py-3 px-3 text-right">Kas Masuk</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-xs">
-                  {(summary?.recent_orders || []).map((ord) => (
-                    <tr key={ord.id} className="hover:bg-slate-50/80">
-                      <td className="py-3.5 px-3 font-mono font-bold text-[#0095FF]">
-                        {ord.order_number}
-                      </td>
-                      <td className="py-3.5 px-3 font-bold text-slate-900">
-                        {ord.customer?.name || 'Walk-in'}
-                      </td>
-                      <td className="py-3.5 px-3 capitalize text-slate-600">
-                        {ord.service_type} ({ord.weight_kg} Kg)
-                      </td>
-                      <td className="py-3.5 px-3 uppercase font-bold text-slate-700">
-                        <span className="inline-flex items-center gap-1">
-                          <CreditCard className="w-3.5 h-3.5 text-[#0095FF]" />{' '}
-                          {ord.payment_method}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-3">
-                        {ord.payment_status === 'paid' ? (
-                          <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold text-[10.5px]">
-                            Lunas
-                          </span>
-                        ) : (
-                          <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 font-bold text-[10.5px]">
-                            Belum Lunas
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-3 text-right font-black text-emerald-600">
-                        + {formatRupiah(ord.total_amount)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <Pagination
+                currentPage={incPage}
+                totalItems={allIncomes.length}
+                pageSize={incPageSize}
+                onPageChange={setIncPage}
+                onPageSizeChange={setIncPageSize}
+                pageSizeOptions={[4, 5, 10]}
+                itemLabel="transaksi pemasukan"
+              />
+            </>
           )}
         </div>
 
@@ -798,7 +923,7 @@ export const AdminFinancePage: React.FC = () => {
                     value={expTitle}
                     onChange={(e) => setExpTitle(e.target.value)}
                     placeholder="Contoh: Beli 3 Jerigen Deterjen & Parfum Sakura"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0095FF]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#2563EB]"
                   />
                 </div>
 
@@ -822,7 +947,7 @@ export const AdminFinancePage: React.FC = () => {
                       value={expAmount}
                       onChange={(e) => setExpAmount(e.target.value)}
                       placeholder="Contoh: 75000"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#0095FF]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#2563EB]"
                     />
                   </div>
                 </div>

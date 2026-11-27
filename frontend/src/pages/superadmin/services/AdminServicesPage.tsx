@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AdminLayout } from '../../../components/layout/AdminLayout';
 import { CustomSelect, type SelectOption } from '../../../components/ui/Select';
+import { Pagination } from '../../../components/ui/Pagination';
 import {
   Tag,
   Plus,
@@ -89,6 +90,8 @@ export const AdminServicesPage: React.FC = () => {
   const [filterCat, setFilterCat] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(6);
 
   // Modal Create / Edit
   const [showModal, setShowModal] = useState(false);
@@ -412,7 +415,9 @@ export const AdminServicesPage: React.FC = () => {
 
         {/* Service Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredServices.map((item) => {
+          {filteredServices
+            .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+            .map((item) => {
             const cat = getCategoryBadge(item.category);
             return (
               <div
@@ -496,6 +501,18 @@ export const AdminServicesPage: React.FC = () => {
               </div>
             );
           })}
+        </div>
+
+        <div className="bg-white px-5 pb-4 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredServices.length}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+            pageSizeOptions={[6, 9, 12]}
+            itemLabel="layanan & tarif"
+          />
         </div>
 
         {/* Modal Create / Edit Service */}

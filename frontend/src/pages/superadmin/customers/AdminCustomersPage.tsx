@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AdminLayout } from '../../../components/layout/AdminLayout';
 import { CustomSelect, type SelectOption } from '../../../components/ui/Select';
+import { Pagination } from '../../../components/ui/Pagination';
 import {
   Users,
   Plus,
@@ -84,6 +85,8 @@ export const AdminCustomersPage: React.FC = () => {
     'ALL'
   );
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
   // Modal Create / Edit Customer
   const [showFormModal, setShowFormModal] = useState(false);
@@ -485,7 +488,9 @@ export const AdminCustomersPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs">
-                {filteredCustomers.map((cust) => {
+                {filteredCustomers
+                  .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                  .map((cust) => {
                   const waPhone = cust.phone.startsWith('0')
                     ? '62' + cust.phone.slice(1)
                     : cust.phone;
@@ -600,6 +605,17 @@ export const AdminCustomersPage: React.FC = () => {
                 })}
               </tbody>
             </table>
+          </div>
+          <div className="px-5 pb-4">
+            <Pagination
+              currentPage={currentPage}
+              totalItems={filteredCustomers.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+              pageSizeOptions={[4, 5, 10]}
+              itemLabel="pelanggan"
+            />
           </div>
         </div>
 
