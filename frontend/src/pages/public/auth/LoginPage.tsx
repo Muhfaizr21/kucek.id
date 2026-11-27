@@ -185,11 +185,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ initialMode }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#E9EEF5] flex items-center justify-center p-3 sm:p-6 md:p-10 font-sans selection:bg-[#2185F0] selection:text-white">
-      {/* Main Floating Split Card (100% matching reference visual architecture) */}
-      <div className="w-full max-w-[1140px] min-h-[670px] bg-white rounded-[28px] sm:rounded-[34px] shadow-[0_28px_75px_-18px_rgba(15,23,42,0.14)] relative overflow-hidden flex flex-col lg:flex-row">
-        {/* LEFT COLUMN: Header + Form */}
-        <div className="w-full lg:w-[57%] px-6 sm:px-14 md:px-16 py-7 sm:py-10 flex flex-col justify-between relative z-20 bg-white">
+    <div className="min-h-screen w-full bg-white flex flex-col lg:flex-row font-sans selection:bg-[#2185F0] selection:text-white">
+      {/* LEFT COLUMN: Header + Form */}
+      <div className="w-full lg:w-[55%] xl:w-[52%] min-h-screen flex flex-col justify-between px-6 sm:px-12 md:px-16 lg:px-20 xl:px-24 py-8 lg:py-10 relative z-20 bg-white">
           {/* Top Bar inside Card */}
           <header className="flex items-center justify-between sm:justify-start sm:gap-20">
             <Link
@@ -573,12 +571,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ initialMode }) => {
         </div>
 
         {/* RIGHT COLUMN: Scenic Mountain Lake Reflection with Organic S-Curve & Dashed Contour Path */}
-        <div className="hidden lg:block lg:w-[43%] relative overflow-hidden bg-[#1D3547]">
+        <div className="hidden lg:block lg:w-[45%] xl:w-[48%] min-h-screen relative overflow-hidden bg-[#1D3547]">
           {/* High-Resolution Scenic Mountain Lake Reflection Photo matching reference */}
           <img
-            src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1400&q=85"
+            src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=85"
             alt="Kucek.id Fresh Nature Reflection"
-            className="w-full h-full object-cover object-center scale-105"
+            className="w-full h-full object-cover object-center scale-105 min-h-screen"
           />
 
           {/* Subtle Atmospheric Gradient Overlay */}
@@ -588,7 +586,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ initialMode }) => {
           <svg
             viewBox="0 0 260 800"
             preserveAspectRatio="none"
-            className="absolute top-0 bottom-0 -left-1 h-full w-[235px] pointer-events-none z-10"
+            className="absolute top-0 bottom-0 -left-1 h-full w-[260px] pointer-events-none z-10"
           >
             {/* Solid White Wavy Cutout blending seamlessly with Left Panel */}
             <path
@@ -606,14 +604,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ initialMode }) => {
           </svg>
 
           {/* Bottom-Right Editorial Stencil Monogram Logo (matching .AW in reference) */}
-          <div className="absolute bottom-7 right-8 z-20 select-none pointer-events-none flex items-baseline text-white drop-shadow-md">
-            <span className="text-lg font-black mr-0.5">.</span>
-            <span className="text-[34px] font-black tracking-[-0.08em] leading-none font-serif">
+          <div className="absolute bottom-9 right-10 z-20 select-none pointer-events-none flex items-baseline text-white drop-shadow-md">
+            <span className="text-xl font-black mr-0.5">.</span>
+            <span className="text-[38px] font-black tracking-[-0.08em] leading-none font-serif">
               KW
             </span>
           </div>
         </div>
       </div>
-    </div>
   );
 };
