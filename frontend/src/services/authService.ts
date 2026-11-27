@@ -7,6 +7,7 @@ export interface AuthUser {
   sub_role?: string;
   is_active?: boolean;
   customer_id?: number;
+  avatar_url?: string;
 }
 
 export interface SeederAccount {
@@ -67,6 +68,22 @@ export function getRedirectPathByRole(role?: string): string {
 export function saveAuthSession(token: string, user: AuthUser): void {
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
+  window.dispatchEvent(new Event('kucek-user-updated'));
+}
+
+export function updateStoredUser(partial: Partial<AuthUser>): AuthUser | null {
+  const current = getCurrentUser();
+  const base: AuthUser = current || {
+    id: 2,
+    name: 'Budi Santoso',
+    email: 'user@kucek.id',
+    phone: '081298765432',
+    role: 'pelanggan',
+  };
+  const updated: AuthUser = { ...base, ...partial };
+  localStorage.setItem(USER_KEY, JSON.stringify(updated));
+  window.dispatchEvent(new Event('kucek-user-updated'));
+  return updated;
 }
 
 export function getCurrentUser(): AuthUser | null {

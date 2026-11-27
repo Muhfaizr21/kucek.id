@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutGrid,
   Truck,
   Layers,
-  User,
   ClipboardList,
   TicketPercent,
   MessageCircle,
@@ -17,25 +16,49 @@ import {
   CheckCircle2,
   Sparkles,
 } from 'lucide-react';
-import { getCurrentUser, logoutUser } from '../../services/authService';
+import { getCurrentUser, logoutUser, type AuthUser } from '../../services/authService';
 
 interface CustomerLayoutProps {
   children: React.ReactNode;
 }
 
+const DEFAULT_AVATAR =
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80';
+
 export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const currentUser = getCurrentUser();
+
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => getCurrentUser());
+  const [avatarUrl, setAvatarUrl] = useState<string>(
+    () =>
+      getCurrentUser()?.avatar_url ||
+      localStorage.getItem('kucek_customer_avatar') ||
+      DEFAULT_AVATAR
+  );
 
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [activeModal, setActiveModal] = useState<'promo' | 'profile' | null>(null);
+  const [promoModalOpen, setPromoModalOpen] = useState(false);
+
+  // Sinkronisasi langsung ketika pengguna mengubah nama atau upload foto PP di halaman Settings
+  useEffect(() => {
+    const syncUser = () => {
+      const updated = getCurrentUser();
+      setCurrentUser(updated);
+      setAvatarUrl(
+        updated?.avatar_url ||
+          localStorage.getItem('kucek_customer_avatar') ||
+          DEFAULT_AVATAR
+      );
+    };
+    window.addEventListener('kucek-user-updated', syncUser);
+    return () => window.removeEventListener('kucek-user-updated', syncUser);
+  }, []);
 
   const displayName = currentUser?.name || 'Budi Santoso';
   const displayEmail = currentUser?.email || 'user@kucek.id';
-  const displayPhone = currentUser?.phone || '081298765432';
 
   const handleLogout = async () => {
     await logoutUser();
@@ -53,15 +76,17 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     }
   };
 
+  // Menu utama (Profil & Settings sudah disatukan ke /app/pengaturan)
   const mainMenuItems = [
     { label: 'Dashboard', path: '/app', icon: LayoutGrid, type: 'link' as const },
     { label: 'Pesan Jemput', path: '/app/pesan-jemput', icon: Truck, type: 'link' as const },
     { label: 'Paket & Kuota', path: '/app/beli-paket', icon: Layers, type: 'link' as const },
-    { label: 'Profil Pelanggan', path: '#profil', icon: User, type: 'modal-profile' as const },
     { label: 'Pesanan Saya', path: '/app/riwayat', icon: ClipboardList, type: 'link' as const },
     { label: 'Voucher & Promo', path: '#promo', icon: TicketPercent, type: 'modal-promo' as const },
-    { label: 'Chat Kasir', path: '/track/KCK-2026-001', icon: MessageCircle, type: 'link' as const },
+    { label: 'Lacak Resi Live', path: '/track/KCK-2026-001', icon: MessageCircle, type: 'link' as const },
   ];
+
+  const isSettingsActive = location.pathname === '/app/pengaturan';
 
   const renderSidebarContent = () => (
     <div className="flex flex-col justify-between h-full py-6 select-none">
@@ -93,19 +118,17 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
               const isActive =
                 item.type === 'link' && location.pathname === item.path;
 
-              if (item.type === 'modal-profile' || item.type === 'modal-promo') {
-                const modalKey = item.type === 'modal-profile' ? 'profile' : 'promo';
-                const isModalActive = activeModal === modalKey;
+              if (item.type === 'modal-promo') {
                 return (
                   <button
                     key={item.label}
                     type="button"
                     onClick={() => {
-                      setActiveModal(modalKey);
+                      setPromoModalOpen(true);
                       setMobileSidebarOpen(false);
                     }}
                     className={`w-full flex items-center gap-3.5 pl-8 pr-5 py-2.5 rounded-r-full text-[13.5px] font-semibold transition-all cursor-pointer ${
-                      isModalActive
+                      promoModalOpen
                         ? 'bg-[#0095FF] text-white shadow-[0_8px_18px_-4px_rgba(0,149,255,0.45)]'
                         : 'text-[#64748B] hover:text-[#111827] hover:bg-slate-50'
                     }`}
@@ -138,21 +161,22 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
         {/* Divider */}
         <div className="my-5 mx-8 border-t border-slate-100" />
 
-        {/* Other Section */}
+        {/* Other Section (Profil & Settings Disatukan) */}
         <div>
           <p className="px-8 text-[11.5px] font-medium text-[#94A3B8] mb-2.5">Other</p>
           <div className="space-y-1 pr-4">
-            <button
-              type="button"
-              onClick={() => {
-                setActiveModal('profile');
-                setMobileSidebarOpen(false);
-              }}
-              className="w-full flex items-center gap-3.5 pl-8 pr-5 py-2.5 rounded-r-full text-[13.5px] font-semibold text-[#64748B] hover:text-[#111827] hover:bg-slate-50 transition cursor-pointer"
+            <Link
+              to="/app/pengaturan"
+              onClick={() => setMobileSidebarOpen(false)}
+              className={`w-full flex items-center gap-3.5 pl-8 pr-5 py-2.5 rounded-r-full text-[13.5px] font-semibold transition-all ${
+                isSettingsActive
+                  ? 'bg-[#0095FF] text-white shadow-[0_8px_18px_-4px_rgba(0,149,255,0.45)]'
+                  : 'text-[#64748B] hover:text-[#111827] hover:bg-slate-50'
+              }`}
             >
               <Settings className="w-[18px] h-[18px] shrink-0" />
-              <span>Settings</span>
-            </button>
+              <span>Profil & Settings</span>
+            </Link>
 
             <button
               type="button"
@@ -279,13 +303,13 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
               )}
             </div>
 
-            {/* User Profile Avatar + Name + Email */}
-            <div
-              onClick={() => setActiveModal('profile')}
+            {/* User Profile Avatar + Name + Email (Klik langsung menuju /app/pengaturan) */}
+            <Link
+              to="/app/pengaturan"
               className="flex items-center gap-3 cursor-pointer group"
             >
               <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+                src={avatarUrl}
                 alt={displayName}
                 className="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-xs group-hover:border-[#0095FF] transition"
               />
@@ -297,7 +321,7 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
                   {displayEmail}
                 </p>
               </div>
-            </div>
+            </Link>
           </div>
         </header>
 
@@ -307,67 +331,8 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
         </main>
       </div>
 
-      {/* Modal Profil & Pengaturan Pelanggan */}
-      {activeModal === 'profile' && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-extrabold text-slate-900">
-                Profil & Alamat Pelanggan
-              </h3>
-              <button
-                type="button"
-                onClick={() => setActiveModal(null)}
-                className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-              <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
-                alt={displayName}
-                className="w-12 h-12 rounded-xl object-cover"
-              />
-              <div>
-                <p className="font-extrabold text-sm text-slate-900">{displayName}</p>
-                <p className="text-xs text-slate-500">{displayEmail}</p>
-                <p className="text-xs text-[#0095FF] font-bold mt-0.5">
-                  WA: {displayPhone}
-                </p>
-              </div>
-            </div>
-            <div className="text-xs space-y-2 text-slate-600">
-              <div className="p-3 rounded-xl border border-slate-100">
-                <span className="text-[10px] font-bold uppercase text-slate-400 block">
-                  Alamat Penjemputan Utama
-                </span>
-                <span className="font-semibold text-slate-800 mt-0.5 block">
-                  Jl. Kaliurang KM 5 No. 12, Sleman, Yogyakarta
-                </span>
-              </div>
-              <div className="p-3 rounded-xl border border-slate-100">
-                <span className="text-[10px] font-bold uppercase text-slate-400 block">
-                  Preferensi Parfum Default
-                </span>
-                <span className="font-semibold text-slate-800 mt-0.5 block">
-                  Ocean Fresh • Pisahkan Pakaian Putih
-                </span>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setActiveModal(null)}
-              className="w-full py-2.5 rounded-xl bg-[#0095FF] hover:bg-[#007ACC] text-white text-xs font-bold transition cursor-pointer"
-            >
-              Simpan & Tutup
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Modal Voucher & Promo Pelanggan */}
-      {activeModal === 'promo' && (
+      {promoModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
             <div className="flex items-center justify-between">
@@ -376,7 +341,7 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
               </h3>
               <button
                 type="button"
-                onClick={() => setActiveModal(null)}
+                onClick={() => setPromoModalOpen(false)}
                 className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -415,7 +380,7 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
             <button
               type="button"
               onClick={() => {
-                setActiveModal(null);
+                setPromoModalOpen(false);
                 navigate('/app/pesan-jemput');
               }}
               className="w-full py-2.5 rounded-xl bg-[#0095FF] hover:bg-[#007ACC] text-white text-xs font-bold transition cursor-pointer"

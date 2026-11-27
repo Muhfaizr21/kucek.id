@@ -17,6 +17,7 @@ import (
 	pelangganHubRoutes "kucek-backend/routes/pelanggan/dashboard"
 	pelangganHistoryRoutes "kucek-backend/routes/pelanggan/history"
 	pelangganPickupRoutes "kucek-backend/routes/pelanggan/pickup"
+	pelangganProfileRoutes "kucek-backend/routes/pelanggan/profile"
 	pelangganSubRoutes "kucek-backend/routes/pelanggan/subscription"
 
 	// Superadmin Routes by Feature
@@ -59,6 +60,7 @@ func SetupRouter() *gin.Engine {
 			pelangganPickupRoutes.RegisterCustomerPickupRoutes(authProtected)
 			pelangganSubRoutes.RegisterCustomerSubscriptionRoutes(authProtected)
 			pelangganHistoryRoutes.RegisterCustomerHistoryRoutes(authProtected)
+			pelangganProfileRoutes.RegisterCustomerProfileRoutes(authProtected)
 
 			// Role: Superadmin & Staf Operasional (per Fitur)
 			adminGroup := authProtected.Group("")
