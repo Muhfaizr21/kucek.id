@@ -570,17 +570,17 @@ export const LoginPage: React.FC<LoginPageProps> = ({ initialMode }) => {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Scenic Mountain Lake Reflection with Organic S-Curve & Dashed Contour Path */}
-        <div className="hidden lg:block lg:w-[45%] xl:w-[48%] min-h-screen relative overflow-hidden bg-[#1D3547]">
-          {/* High-Resolution Scenic Mountain Lake Reflection Photo matching reference */}
+        {/* RIGHT COLUMN: Aesthetic Sunlit Laundry Room with Organic S-Curve & Dashed Contour Path */}
+        <div className="hidden lg:block lg:w-[45%] xl:w-[48%] min-h-screen relative overflow-hidden bg-[#1E293B]">
+          {/* High-Resolution AI Generated Laundry Editorial Photo */}
           <img
-            src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=85"
-            alt="Kucek.id Fresh Nature Reflection"
+            src="/images/auth-laundry.jpg"
+            alt="Kucek.id Layanan Laundry Bersih dan Higienis"
             className="w-full h-full object-cover object-center scale-105 min-h-screen"
           />
 
           {/* Subtle Atmospheric Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-[#0B2233]/25 via-transparent to-white/10 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-[#0F172A]/20 via-transparent to-white/10 pointer-events-none" />
 
           {/* Organic Wavy White Mask + Dashed Contour Line on Left Edge */}
           <svg
