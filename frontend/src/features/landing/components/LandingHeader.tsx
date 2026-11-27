@@ -47,9 +47,15 @@ export const LandingHeader: React.FC = () => {
         </nav>
 
         {/* Right Action Button */}
-        <div className="hidden md:flex items-center">
+        <div className="hidden md:flex items-center gap-3">
           <Link
             to="/login"
+            className="px-4 py-2 min-h-[44px] inline-flex items-center justify-center text-sm font-bold text-[#1A1918] hover:text-[#C8430E] transition"
+          >
+            Masuk
+          </Link>
+          <Link
+            to="/register"
             className="px-6 py-2.5 min-h-[44px] inline-flex items-center justify-center rounded-full bg-[#C8430E] hover:bg-[#AD380A] active:bg-[#932F08] text-white text-sm font-bold transition"
           >
             Daftar Akun

@@ -114,6 +114,9 @@ func (a *AuthController) Register(c *gin.Context) {
 		return
 	}
 
+	// Set HttpOnly Cookie saat registrasi agar langsung login
+	c.SetCookie("auth_token", token, 3600*config.AppConfig.JWTExpiryHours, "/", "", false, true)
+
 	views.Success(c, http.StatusCreated, "Registrasi akun berhasil", views.AuthResponse{
 		Token: token,
 		User: gin.H{

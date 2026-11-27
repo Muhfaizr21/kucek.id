@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   ShoppingBag, 
@@ -9,8 +9,10 @@ import {
   Package, 
   Users, 
   ArrowLeft,
-  Sparkles
+  Sparkles,
+  LogOut
 } from 'lucide-react';
+import { getCurrentUser, logoutUser } from '../../services/authService';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -18,6 +20,13 @@ interface AdminLayoutProps {
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const currentUser = getCurrentUser();
+
+  const handleLogout = async () => {
+    await logoutUser();
+    navigate('/login', { replace: true });
+  };
 
   const navItems = [
     { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
@@ -93,8 +102,19 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             <span className="text-sm font-semibold text-slate-700">Outlet Utama: Kucek.id Dipatiukur</span>
             <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-emerald-100 text-emerald-700">Buka</span>
           </div>
-          <div className="flex items-center gap-3 text-sm">
-            <span className="text-slate-500">Masuk sebagai: <b className="text-slate-800">Owner Superadmin</b></span>
+          <div className="flex items-center gap-4 text-sm">
+            <span className="text-slate-500">
+              Masuk sebagai:{' '}
+              <b className="text-slate-800">{currentUser?.name || 'Superadmin Kucek'}</b>
+            </span>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 transition cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Keluar</span>
+            </button>
           </div>
         </header>
 

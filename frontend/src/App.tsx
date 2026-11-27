@@ -29,7 +29,8 @@ export const App: React.FC = () => {
         <Route path="/" element={<LandingPage />} />
         <Route path="/track" element={<TrackingPage />} />
         <Route path="/track/:resi" element={<TrackingPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage initialMode="login" />} />
+        <Route path="/register" element={<LoginPage initialMode="register" />} />
 
         {/* Superadmin Routes */}
         <Route path="/admin" element={<AdminDashboardPage />} />

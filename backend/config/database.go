@@ -64,10 +64,9 @@ func AutoMigrate(db *gorm.DB) error {
 }
 
 func seedInitialData(db *gorm.DB) {
-	// 1. Seed Superadmin jika belum ada
-	var userCount int64
-	db.Model(&models.User{}).Where("role = ?", models.RoleSuperAdmin).Count(&userCount)
-	if userCount == 0 {
+	// 1. Seed Akun Superadmin jika belum ada
+	var adminUser models.User
+	if err := db.Where("email = ?", "admin@kucek.id").First(&adminUser).Error; err != nil {
 		superAdmin := models.User{
 			Name:     "Superadmin Kucek",
 			Email:    "admin@kucek.id",
@@ -81,9 +80,36 @@ func seedInitialData(db *gorm.DB) {
 				log.Println("Superadmin user seeded: admin@kucek.id / admin")
 			}
 		}
+	} else {
+		if !adminUser.CheckPassword("admin") {
+			_ = adminUser.SetPassword("admin")
+			db.Save(&adminUser)
+		}
 	}
 
-	// 2. Seed Paket Langganan dasar jika belum ada
+	// 2. Seed Akun Pelanggan (User) jika belum ada
+	var customerUser models.User
+	if err := db.Where("email = ?", "user@kucek.id").First(&customerUser).Error; err != nil {
+		customerUser = models.User{
+			Name:     "Budi Santoso",
+			Email:    "user@kucek.id",
+			Phone:    "081298765432",
+			Role:     models.RolePelanggan,
+			IsActive: true,
+		}
+		if err := customerUser.SetPassword("user123"); err == nil {
+			if err := db.Create(&customerUser).Error; err == nil {
+				log.Println("Customer user seeded: user@kucek.id / user123")
+			}
+		}
+	} else {
+		if !customerUser.CheckPassword("user123") {
+			_ = customerUser.SetPassword("user123")
+			db.Save(&customerUser)
+		}
+	}
+
+	// 3. Seed Paket Langganan dasar jika belum ada
 	var pkgCount int64
 	db.Model(&models.LaundryPackage{}).Count(&pkgCount)
 	if pkgCount == 0 {
@@ -128,11 +154,24 @@ func seedInitialData(db *gorm.DB) {
 		log.Println("Default subscription packages seeded successfully.")
 	}
 
-	// 3. Seed Sample Customer & Order jika belum ada
+	// 4. Seed Sample Customer Profile & Order jika belum ada, dan tautkan ke user@kucek.id
+	var existingCust models.Customer
+	if err := db.Where("phone = ?", "081298765432").First(&existingCust).Error; err == nil {
+		if existingCust.UserID == nil && customerUser.ID != 0 {
+			existingCust.UserID = &customerUser.ID
+			db.Save(&existingCust)
+		}
+	}
+
 	var orderCount int64
 	db.Model(&models.Order{}).Count(&orderCount)
 	if orderCount == 0 {
+		var userIDPtr *uint
+		if customerUser.ID != 0 {
+			userIDPtr = &customerUser.ID
+		}
 		customer := models.Customer{
+			UserID:         userIDPtr,
 			Name:           "Budi Santoso",
 			Phone:          "081298765432",
 			Address:        "Jl. Kaliurang KM 5 No. 12, Sleman, Yogyakarta",

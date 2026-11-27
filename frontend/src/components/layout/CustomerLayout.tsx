@@ -1,6 +1,7 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Home, Truck, Package, Clock, Sparkles } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, Truck, Package, Clock, Sparkles, LogOut } from 'lucide-react';
+import { getCurrentUser, logoutUser } from '../../services/authService';
 
 interface CustomerLayoutProps {
   children: React.ReactNode;
@@ -8,6 +9,13 @@ interface CustomerLayoutProps {
 
 export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const currentUser = getCurrentUser();
+
+  const handleLogout = async () => {
+    await logoutUser();
+    navigate('/login', { replace: true });
+  };
 
   const navItems = [
     { label: 'Beranda', path: '/app', icon: Home },
@@ -27,11 +35,18 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
             </div>
             <span>kucek<span className="text-slate-900">.id</span></span>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <span className="text-xs bg-sky-50 text-sky-700 border border-sky-200 px-2.5 py-1 rounded-full font-semibold">
-              Pelanggan: Faisal M.
+              Pelanggan: {currentUser?.name || 'Budi Santoso'}
             </span>
-            <Link to="/" className="text-xs text-slate-500 hover:text-slate-800">Keluar</Link>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-rose-600 transition cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Keluar</span>
+            </button>
           </div>
         </div>
       </header>
