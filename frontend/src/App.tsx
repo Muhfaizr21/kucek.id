@@ -47,6 +47,8 @@ export const App: React.FC = () => {
         <Route path="/app/pesan-jemput" element={<CustomerPickupPage />} />
         <Route path="/app/beli-paket" element={<CustomerPackagesPage />} />
         <Route path="/app/riwayat" element={<CustomerHistoryPage />} />
+        <Route path="/app/lacak" element={<TrackingPage />} />
+        <Route path="/app/lacak/:resi" element={<TrackingPage />} />
         <Route path="/app/pengaturan" element={<CustomerSettingsPage />} />
 
         {/* Fallback */}

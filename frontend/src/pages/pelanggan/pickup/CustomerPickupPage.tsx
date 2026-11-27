@@ -85,7 +85,7 @@ export const CustomerPickupPage: React.FC = () => {
           <div className="pt-2 flex items-center justify-center gap-3">
             <button
               type="button"
-              onClick={() => navigate(`/track/${createdOrderNumber}`)}
+              onClick={() => navigate(`/app/lacak/${createdOrderNumber}`)}
               className="px-6 py-2.5 rounded-xl bg-[#0095FF] hover:bg-[#007ACC] text-white font-bold text-xs transition cursor-pointer"
             >
               Lacak Resi Sekarang

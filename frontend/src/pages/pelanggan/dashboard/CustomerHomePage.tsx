@@ -257,7 +257,7 @@ export const CustomerHomePage: React.FC = () => {
                 Total Cucian Bersih Bulan Ini
               </span>
               <Link
-                to={`/track/${activeOrderNumber}`}
+                to={`/app/lacak/${activeOrderNumber}`}
                 title="Lacak Pesanan Aktif"
                 className="w-7 h-5 rounded-md bg-[#F5F7FA] hover:bg-slate-200 text-[#94A3B8] flex items-center justify-center transition"
               >
@@ -485,7 +485,7 @@ export const CustomerHomePage: React.FC = () => {
                 </p>
               </div>
               <Link
-                to={`/track/${activeOrderNumber}`}
+                to={`/app/lacak/${activeOrderNumber}`}
                 className="px-3.5 py-1.5 rounded-lg bg-[#F5F7FA] hover:bg-slate-200 text-[#64748B] text-[11px] font-bold transition shrink-0"
               >
                 Lacak Resi
@@ -496,7 +496,7 @@ export const CustomerHomePage: React.FC = () => {
               {deliveryProgressCards.map((item) => (
                 <div
                   key={item.id}
-                  onClick={() => navigate(`/track/${item.id}`)}
+                  onClick={() => navigate(`/app/lacak/${item.id}`)}
                   className="p-3 rounded-2xl border border-dashed border-slate-200 hover:border-[#0095FF] transition flex items-center justify-between gap-3 cursor-pointer group"
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -566,7 +566,7 @@ export const CustomerHomePage: React.FC = () => {
                     <tr
                       key={row.id}
                       onClick={() =>
-                        navigate(`/track/${row.orderNumber.replace('#', '')}`)
+                        navigate(`/app/lacak/${row.orderNumber.replace('#', '')}`)
                       }
                       className="hover:bg-slate-50/80 transition cursor-pointer"
                     >

@@ -70,7 +70,7 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     const trimmed = searchQuery.trim();
     if (!trimmed) return;
     if (trimmed.toUpperCase().startsWith('KCK-')) {
-      navigate(`/track/${trimmed.toUpperCase()}`);
+      navigate(`/app/lacak/${trimmed.toUpperCase()}`);
     } else {
       navigate('/app/riwayat');
     }
@@ -83,7 +83,7 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     { label: 'Paket & Kuota', path: '/app/beli-paket', icon: Layers, type: 'link' as const },
     { label: 'Pesanan Saya', path: '/app/riwayat', icon: ClipboardList, type: 'link' as const },
     { label: 'Voucher & Promo', path: '#promo', icon: TicketPercent, type: 'modal-promo' as const },
-    { label: 'Lacak Resi Live', path: '/track/KCK-2026-001', icon: MessageCircle, type: 'link' as const },
+    { label: 'Lacak Resi Live', path: '/app/lacak', icon: MessageCircle, type: 'link' as const },
   ];
 
   const isSettingsActive = location.pathname === '/app/pengaturan';
@@ -116,7 +116,11 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
             {mainMenuItems.map((item) => {
               const Icon = item.icon;
               const isActive =
-                item.type === 'link' && location.pathname === item.path;
+                item.type === 'link' &&
+                (location.pathname === item.path ||
+                  (item.label === 'Lacak Resi Live' &&
+                    (location.pathname.startsWith('/app/lacak') ||
+                      location.pathname.startsWith('/track'))));
 
               if (item.type === 'modal-promo') {
                 return (

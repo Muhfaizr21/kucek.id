@@ -104,7 +104,7 @@ export const CustomerHistoryPage: React.FC = () => {
                     </td>
                     <td className="py-4 pl-3 text-right">
                       <Link
-                        to={`/track/${item.resi}`}
+                        to={`/app/lacak/${item.resi}`}
                         className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#F5F7FA] hover:bg-[#0095FF] hover:text-white text-[#64748B] font-bold text-[11px] transition"
                       >
                         <span>Lacak</span>
