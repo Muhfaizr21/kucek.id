@@ -20,6 +20,7 @@ import { CustomerHomePage } from './pages/pelanggan/dashboard/CustomerHomePage';
 import { CustomerPickupPage } from './pages/pelanggan/pickup/CustomerPickupPage';
 import { CustomerPackagesPage } from './pages/pelanggan/subscription/CustomerPackagesPage';
 import { CustomerHistoryPage } from './pages/pelanggan/history/CustomerHistoryPage';
+import { CustomerVoucherPage } from './pages/pelanggan/voucher/CustomerVoucherPage';
 import { CustomerSettingsPage } from './pages/pelanggan/settings/CustomerSettingsPage';
 
 export const App: React.FC = () => {
@@ -47,6 +48,7 @@ export const App: React.FC = () => {
         <Route path="/app/pesan-jemput" element={<CustomerPickupPage />} />
         <Route path="/app/beli-paket" element={<CustomerPackagesPage />} />
         <Route path="/app/riwayat" element={<CustomerHistoryPage />} />
+        <Route path="/app/voucher" element={<CustomerVoucherPage />} />
         <Route path="/app/lacak" element={<TrackingPage />} />
         <Route path="/app/lacak/:resi" element={<TrackingPage />} />
         <Route path="/app/pengaturan" element={<CustomerSettingsPage />} />

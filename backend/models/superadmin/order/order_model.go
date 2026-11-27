@@ -38,6 +38,8 @@ type Order struct {
 	PricePerKg    float64                `gorm:"type:decimal(12,2);default:8000" json:"price_per_kg"`
 	Subtotal      float64                `gorm:"type:decimal(12,2);not null" json:"subtotal"`
 	Discount      float64                `gorm:"type:decimal(12,2);default:0" json:"discount"`
+	VoucherCode   string                 `gorm:"type:varchar(40)" json:"voucher_code,omitempty"`
+	QuotaUsedKg   float64                `gorm:"type:decimal(10,2);default:0" json:"quota_used_kg"`
 	DeliveryFee   float64                `gorm:"type:decimal(12,2);default:0" json:"delivery_fee"`
 	TotalAmount   float64                `gorm:"type:decimal(12,2);not null" json:"total_amount"`
 	Status        OrderStatus            `gorm:"type:varchar(30);default:'terima';index" json:"status"`

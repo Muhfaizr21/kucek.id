@@ -5,6 +5,7 @@ import (
 
 	"kucek-backend/models/auth/account"
 	"kucek-backend/models/pelanggan/profile"
+	"kucek-backend/models/pelanggan/voucher"
 	"kucek-backend/models/public/tracking"
 	"kucek-backend/models/superadmin/order"
 	"kucek-backend/models/superadmin/package_catalog"
@@ -18,6 +19,8 @@ func RunAutoMigrate(db *gorm.DB) error {
 		&account.User{},
 		&package_catalog.LaundryPackage{},
 		&profile.Customer{},
+		&voucher.Voucher{},
+		&voucher.CustomerVoucher{},
 		&order.Order{},
 		&order.OrderItem{},
 		&tracking.TrackingLog{},

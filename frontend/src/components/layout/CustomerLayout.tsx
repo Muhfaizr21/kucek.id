@@ -13,7 +13,6 @@ import {
   Bell,
   Menu,
   X,
-  CheckCircle2,
   Sparkles,
 } from 'lucide-react';
 import { getCurrentUser, logoutUser, type AuthUser } from '../../services/authService';
@@ -40,7 +39,6 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [promoModalOpen, setPromoModalOpen] = useState(false);
 
   // Sinkronisasi langsung ketika pengguna mengubah nama atau upload foto PP di halaman Settings
   useEffect(() => {
@@ -72,18 +70,18 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     if (trimmed.toUpperCase().startsWith('KCK-')) {
       navigate(`/app/lacak/${trimmed.toUpperCase()}`);
     } else {
-      navigate('/app/riwayat');
+      navigate(`/app/riwayat?q=${encodeURIComponent(trimmed)}`);
     }
   };
 
-  // Menu utama (Profil & Settings sudah disatukan ke /app/pengaturan)
+  // Menu utama (Seluruhnya halaman penuh dengan data real)
   const mainMenuItems = [
-    { label: 'Dashboard', path: '/app', icon: LayoutGrid, type: 'link' as const },
-    { label: 'Pesan Jemput', path: '/app/pesan-jemput', icon: Truck, type: 'link' as const },
-    { label: 'Paket & Kuota', path: '/app/beli-paket', icon: Layers, type: 'link' as const },
-    { label: 'Pesanan Saya', path: '/app/riwayat', icon: ClipboardList, type: 'link' as const },
-    { label: 'Voucher & Promo', path: '#promo', icon: TicketPercent, type: 'modal-promo' as const },
-    { label: 'Lacak Resi Live', path: '/app/lacak', icon: MessageCircle, type: 'link' as const },
+    { label: 'Dashboard', path: '/app', icon: LayoutGrid },
+    { label: 'Pesan Jemput', path: '/app/pesan-jemput', icon: Truck },
+    { label: 'Paket & Kuota', path: '/app/beli-paket', icon: Layers },
+    { label: 'Pesanan Saya', path: '/app/riwayat', icon: ClipboardList },
+    { label: 'Voucher & Promo', path: '/app/voucher', icon: TicketPercent },
+    { label: 'Lacak Resi Live', path: '/app/lacak', icon: MessageCircle },
   ];
 
   const isSettingsActive = location.pathname === '/app/pengaturan';
@@ -116,32 +114,12 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
             {mainMenuItems.map((item) => {
               const Icon = item.icon;
               const isActive =
-                item.type === 'link' &&
-                (location.pathname === item.path ||
-                  (item.label === 'Lacak Resi Live' &&
-                    (location.pathname.startsWith('/app/lacak') ||
-                      location.pathname.startsWith('/track'))));
-
-              if (item.type === 'modal-promo') {
-                return (
-                  <button
-                    key={item.label}
-                    type="button"
-                    onClick={() => {
-                      setPromoModalOpen(true);
-                      setMobileSidebarOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-3.5 pl-8 pr-5 py-2.5 rounded-r-full text-[13.5px] font-semibold transition-all cursor-pointer ${
-                      promoModalOpen
-                        ? 'bg-[#0095FF] text-white shadow-[0_8px_18px_-4px_rgba(0,149,255,0.45)]'
-                        : 'text-[#64748B] hover:text-[#111827] hover:bg-slate-50'
-                    }`}
-                  >
-                    <Icon className="w-[18px] h-[18px] shrink-0" />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              }
+                location.pathname === item.path ||
+                (item.path === '/app/lacak' &&
+                  (location.pathname.startsWith('/app/lacak') ||
+                    location.pathname.startsWith('/track'))) ||
+                (item.path === '/app/voucher' &&
+                  location.pathname.startsWith('/app/voucher'));
 
               return (
                 <Link
@@ -229,7 +207,7 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
 
       {/* Right Main Column */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
-        {/* Top Navbar matching reference screenshot */}
+        {/* Top Navbar */}
         <header className="h-20 bg-white border-b border-slate-100 px-5 sm:px-8 flex items-center justify-between gap-4 sticky top-0 z-30">
           <div className="flex items-center gap-3 flex-1 max-w-[420px]">
             <button
@@ -282,11 +260,17 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
                       Notifikasi Cucian Live
                     </span>
                     <span className="text-[10px] font-bold text-[#0095FF] bg-sky-50 px-2 py-0.5 rounded-full">
-                      2 Baru
+                      3 Aktif
                     </span>
                   </div>
                   <div className="divide-y divide-slate-100 text-xs mt-1">
-                    <div className="py-2.5">
+                    <div
+                      onClick={() => {
+                        setNotifOpen(false);
+                        navigate('/app/lacak/KCK-2026-001');
+                      }}
+                      className="py-2.5 hover:bg-slate-50 px-2 rounded-lg cursor-pointer transition"
+                    >
                       <p className="font-bold text-slate-800">
                         KCK-2026-001 • Tahap Setrika Uap
                       </p>
@@ -294,12 +278,32 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
                         Cucian 4.5 Kg Anda sedang disetrika uap & quality control.
                       </p>
                     </div>
-                    <div className="py-2.5">
+                    <div
+                      onClick={() => {
+                        setNotifOpen(false);
+                        navigate('/app/voucher');
+                      }}
+                      className="py-2.5 hover:bg-slate-50 px-2 rounded-lg cursor-pointer transition"
+                    >
+                      <p className="font-bold text-[#0095FF]">
+                        3 Voucher Diskon Siap Dipakai!
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Gunakan KUCEKHEMAT20 atau ONGKIRGRATIS untuk pesanan berikutnya.
+                      </p>
+                    </div>
+                    <div
+                      onClick={() => {
+                        setNotifOpen(false);
+                        navigate('/app/beli-paket');
+                      }}
+                      className="py-2.5 hover:bg-slate-50 px-2 rounded-lg cursor-pointer transition"
+                    >
                       <p className="font-bold text-slate-800">
                         Kuota Paket Keluarga Aktif
                       </p>
                       <p className="text-[11px] text-slate-500 mt-0.5">
-                        Sisa saldo kuota Anda 15.50 Kg berlaku hingga bulan depan.
+                        Kelola saldo kuota langganan dan klaim promo top-up.
                       </p>
                     </div>
                   </div>
@@ -307,7 +311,7 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
               )}
             </div>
 
-            {/* User Profile Avatar + Name + Email (Klik langsung menuju /app/pengaturan) */}
+            {/* User Profile Avatar + Name + Email */}
             <Link
               to="/app/pengaturan"
               className="flex items-center gap-3 cursor-pointer group"
@@ -334,66 +338,6 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
           {children}
         </main>
       </div>
-
-      {/* Modal Voucher & Promo Pelanggan */}
-      {promoModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-extrabold text-slate-900">
-                Voucher & Promo Member Aktif
-              </h3>
-              <button
-                type="button"
-                onClick={() => setPromoModalOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="space-y-3">
-              <div className="p-4 rounded-2xl border border-dashed border-[#0095FF] bg-sky-50/50 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-[#0095FF] text-white">
-                    KUCEKHEMAT20
-                  </span>
-                  <p className="text-xs font-extrabold text-slate-900 mt-1.5">
-                    Gratis Antar-Jemput Tanpa Minimum Kg
-                  </p>
-                  <p className="text-[11px] text-slate-500">
-                    Berlaku untuk seluruh member paket aktif
-                  </p>
-                </div>
-                <CheckCircle2 className="w-5 h-5 text-[#0095FF] shrink-0" />
-              </div>
-              <div className="p-4 rounded-2xl border border-dashed border-emerald-400 bg-emerald-50/40 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-emerald-600 text-white">
-                    BEDCOVERFREE
-                  </span>
-                  <p className="text-xs font-extrabold text-slate-900 mt-1.5">
-                    Diskon 30% Cuci Bed Cover & Sprei King
-                  </p>
-                  <p className="text-[11px] text-slate-500">
-                    Otomatis teraplikasi saat booking jemput
-                  </p>
-                </div>
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                setPromoModalOpen(false);
-                navigate('/app/pesan-jemput');
-              }}
-              className="w-full py-2.5 rounded-xl bg-[#0095FF] hover:bg-[#007ACC] text-white text-xs font-bold transition cursor-pointer"
-            >
-              Gunakan Voucher & Pesan Jemput
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

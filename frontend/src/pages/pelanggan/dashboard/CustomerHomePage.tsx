@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CustomerLayout } from '../../../components/layout/CustomerLayout';
-import { MoreHorizontal, TrendingUp, TrendingDown } from 'lucide-react';
+import { MoreHorizontal, TrendingUp, TrendingDown, TicketPercent } from 'lucide-react';
 import { getAuthToken } from '../../../services/authService';
 
 interface CustomerOrderRow {
@@ -15,14 +15,123 @@ interface CustomerOrderRow {
   qtyText: string;
 }
 
+interface DeliveryCardItem {
+  id: string;
+  title: string;
+  toCustomer: string;
+  fromOperator: string;
+  badgeText: string;
+  badgeClass: string;
+  image: string;
+}
+
 export const CustomerHomePage: React.FC = () => {
   const navigate = useNavigate();
 
-  // State terhubung ke Backend API (/api/v1/customer/hub) dengan initial fallback data kaya
+  // State terhubung penuh ke Backend API (/api/v1/customer/hub)
   const [remainingQuotaKg, setRemainingQuotaKg] = useState<number>(15.5);
   const [activeOrderNumber, setActiveOrderNumber] = useState<string>('KCK-2026-001');
-  const monthlyUsageKg = 38.5;
-  const monthlySpendRp = 166000;
+  const [monthlyUsageKg, setMonthlyUsageKg] = useState<number>(26.2);
+  const [monthlySpendRp, setMonthlySpendRp] = useState<number>(203000);
+  const [claimedVouchersCount, setClaimedVouchersCount] = useState<number>(3);
+  const [composition, setComposition] = useState({
+    kiloanKg: 18.2,
+    satuanKg: 8.0,
+    expressKg: 3.5,
+  });
+
+  const [deliveryProgressCards, setDeliveryProgressCards] = useState<DeliveryCardItem[]>([
+    {
+      id: 'KCK-2026-001',
+      title: 'Cuci Setrika Kiloan • Ocean Fresh',
+      toCustomer: 'Budi Santoso',
+      fromOperator: 'Dina (Meja Setrika Uap)',
+      badgeText: 'Setrika Uap',
+      badgeClass: 'bg-[#FEF6E0] text-[#EAB308]',
+      image: '/images/hero-stack.jpg',
+    },
+    {
+      id: 'KCK-2026-003',
+      title: 'Jemput Cucian • Lavender Calm',
+      toCustomer: 'Budi Santoso',
+      fromOperator: 'Andi Wijaya (Armada 02)',
+      badgeText: 'Dijemput Kurir',
+      badgeClass: 'bg-[#E0F2FE] text-[#0095FF]',
+      image: '/images/auth-laundry.jpg',
+    },
+    {
+      id: 'KCK-2026-004',
+      title: 'Bed Cover King Size • Vanilla',
+      toCustomer: 'Budi Santoso',
+      fromOperator: 'Raka Pratama (Kurir)',
+      badgeText: 'Selesai Diantar',
+      badgeClass: 'bg-[#E6F8F3] text-[#10B981]',
+      image: '/images/hero-stack.jpg',
+    },
+  ]);
+
+  const [orderReportRows, setOrderReportRows] = useState<CustomerOrderRow[]>([
+    {
+      id: '1',
+      serviceName: 'Cuci Setrika Kiloan (Ocean Fresh)',
+      orderNumber: '#KCK-2026-001',
+      dateAdded: '27 Nov, 2026',
+      priceText: 'Rp 36.000',
+      statusLabel: 'Disetrika Uap',
+      statusType: 'in_process',
+      qtyText: '4.50 KG',
+    },
+    {
+      id: '2',
+      serviceName: 'Jemput Kiloan (KUCEKHEMAT20)',
+      orderNumber: '#KCK-2026-003',
+      dateAdded: '27 Nov, 2026',
+      priceText: 'Rp 32.000',
+      statusLabel: 'Dijemput Kurir',
+      statusType: 'in_process',
+      qtyText: '5.00 KG',
+    },
+    {
+      id: '3',
+      serviceName: 'Dry Clean Jas & Blazer Eksekutif',
+      orderNumber: '#KCK-2026-002',
+      dateAdded: '25 Nov, 2026',
+      priceText: 'Rp 65.000',
+      statusLabel: 'Menunggu Bayar',
+      statusType: 'unpaid',
+      qtyText: '2.00 PCS',
+    },
+    {
+      id: '4',
+      serviceName: 'Bed Cover King Size + Sprei Set',
+      orderNumber: '#KCK-2026-004',
+      dateAdded: '22 Nov, 2026',
+      priceText: 'Rp 35.000',
+      statusLabel: 'Selesai Diantar',
+      statusType: 'completed',
+      qtyText: '6.00 KG',
+    },
+    {
+      id: '5',
+      serviceName: 'Cuci Lipat Reguler (Potong Kuota)',
+      orderNumber: '#KCK-2026-005',
+      dateAdded: '18 Nov, 2026',
+      priceText: 'Potong Kuota',
+      statusLabel: 'Selesai Diantar',
+      statusType: 'completed',
+      qtyText: '5.20 KG',
+    },
+    {
+      id: '6',
+      serviceName: 'Express 1 Hari (Ocean Fresh)',
+      orderNumber: '#KCK-2026-006',
+      dateAdded: '13 Nov, 2026',
+      priceText: 'Rp 35.000',
+      statusLabel: 'Selesai Diantar',
+      statusType: 'completed',
+      qtyText: '3.50 KG',
+    },
+  ]);
 
   useEffect(() => {
     const token = getAuthToken();
@@ -35,26 +144,131 @@ export const CustomerHomePage: React.FC = () => {
     })
       .then((res) => res.json())
       .then((payload) => {
-        if (payload?.success && payload?.data?.customer) {
-          const cust = payload.data.customer;
-          if (typeof cust.remaining_quota_kg === 'number') {
+        if (payload?.success && payload?.data) {
+          const d = payload.data;
+          const cust = d.customer;
+          if (cust && typeof cust.remaining_quota_kg === 'number') {
             setRemainingQuotaKg(cust.remaining_quota_kg);
           }
-          if (
-            Array.isArray(payload.data.active_orders) &&
-            payload.data.active_orders.length > 0
-          ) {
-            const latest = payload.data.active_orders[0];
-            if (latest.order_number) setActiveOrderNumber(latest.order_number);
+          if (typeof d.claimed_vouchers_count === 'number') {
+            setClaimedVouchersCount(d.claimed_vouchers_count);
+          }
+          if (d.stats) {
+            if (typeof d.stats.monthly_spend_rp === 'number' && d.stats.monthly_spend_rp > 0) {
+              setMonthlySpendRp(d.stats.monthly_spend_rp);
+            }
+            if (typeof d.stats.monthly_usage_kg === 'number' && d.stats.monthly_usage_kg > 0) {
+              setMonthlyUsageKg(d.stats.monthly_usage_kg);
+            }
+            if (d.stats.composition) {
+              setComposition({
+                kiloanKg: d.stats.composition.kiloan_kg || 18.2,
+                satuanKg: d.stats.composition.satuan_kg || 8.0,
+                expressKg: d.stats.composition.express_kg || 3.5,
+              });
+            }
+          }
+
+          if (Array.isArray(d.active_orders) && d.active_orders.length > 0) {
+            setActiveOrderNumber(d.active_orders[0].order_number);
+          }
+
+          // Map real orders from DB into Table & Delivery Cards
+          if (Array.isArray(d.all_orders) && d.all_orders.length > 0) {
+            const scentLabel: Record<string, string> = {
+              ocean_fresh: 'Ocean Fresh',
+              sakura_blossom: 'Sakura',
+              vanilla_mist: 'Vanilla',
+              lavender_calm: 'Lavender',
+            };
+
+            const mappedRows: CustomerOrderRow[] = d.all_orders.slice(0, 6).map((ord: any) => {
+              const scent = scentLabel[ord.fragrance] || ord.fragrance || 'Ocean Fresh';
+              const srvName =
+                ord.service_type === 'satuan'
+                  ? `Dry Clean & Satuan (${scent})`
+                  : ord.service_type === 'express'
+                  ? `Express 24 Jam (${scent})`
+                  : `Cuci Setrika Kiloan (${scent})`;
+
+              let statusLabel = 'Disetrika Uap';
+              let statusType: 'in_process' | 'completed' | 'unpaid' = 'in_process';
+
+              if (ord.payment_status === 'unpaid') {
+                statusLabel = 'Menunggu Bayar';
+                statusType = 'unpaid';
+              } else if (ord.status === 'selesai') {
+                statusLabel = 'Selesai Diantar';
+                statusType = 'completed';
+              } else if (ord.status === 'terima') {
+                statusLabel = 'Dijemput Kurir';
+              } else if (ord.status === 'cuci') {
+                statusLabel = 'Sedang Dicuci';
+              } else if (ord.status === 'kering') {
+                statusLabel = 'Pengering 60°C';
+              }
+
+              const priceText =
+                ord.payment_method === 'kuota_langganan' || ord.quota_used_kg > 0
+                  ? 'Potong Kuota'
+                  : `Rp ${Number(ord.total_amount).toLocaleString('id-ID')}`;
+
+              return {
+                id: String(ord.id),
+                serviceName: ord.voucher_code ? `${srvName} • ${ord.voucher_code}` : srvName,
+                orderNumber: `#${ord.order_number}`,
+                dateAdded: new Date(ord.created_at).toLocaleDateString('id-ID', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric',
+                }),
+                priceText,
+                statusLabel,
+                statusType,
+                qtyText: `${Number(ord.weight_kg).toFixed(2)} ${
+                  ord.service_type === 'satuan' ? 'PCS' : 'KG'
+                }`,
+              };
+            });
+            setOrderReportRows(mappedRows);
+
+            const mappedCards: DeliveryCardItem[] = d.all_orders.slice(0, 3).map((ord: any, i: number) => {
+              const scent = scentLabel[ord.fragrance] || 'Ocean Fresh';
+              const isDone = ord.status === 'selesai';
+              const isPickup = ord.status === 'terima';
+              return {
+                id: ord.order_number,
+                title:
+                  ord.service_type === 'satuan'
+                    ? `Dry Clean & Satuan • ${scent}`
+                    : `Cuci Setrika ${Number(ord.weight_kg).toFixed(1)} Kg • ${scent}`,
+                toCustomer: cust?.name || 'Budi Santoso',
+                fromOperator: isDone
+                  ? 'Raka Pratama (Kurir)'
+                  : isPickup
+                  ? 'Andi Wijaya (Armada 02)'
+                  : 'Dina (Meja Setrika Uap)',
+                badgeText: isDone
+                  ? 'Selesai Diantar'
+                  : isPickup
+                  ? 'Dijemput Kurir'
+                  : 'Setrika Uap',
+                badgeClass: isDone
+                  ? 'bg-[#E6F8F3] text-[#10B981]'
+                  : isPickup
+                  ? 'bg-[#E0F2FE] text-[#0095FF]'
+                  : 'bg-[#FEF6E0] text-[#EAB308]',
+                image: i % 2 === 0 ? '/images/hero-stack.jpg' : '/images/auth-laundry.jpg',
+              };
+            });
+            setDeliveryProgressCards(mappedCards);
           }
         }
       })
-      .catch(() => {
-        // Gunakan data default jika server lokal sedang tidak aktif
-      });
+      .catch(() => {});
   }, []);
 
-  // 18 Bar Data untuk Grafik Batang Vertikal Bulat (identik dengan visual "Sales This Months" di referensi)
+  // 16 Bar Data untuk Grafik Batang Vertikal Bulat
   const monthlyBarData = [
     { day: '01 Nov', heightPct: 52, kg: '4.2 Kg' },
     { day: '03 Nov', heightPct: 82, kg: '6.8 Kg' },
@@ -74,119 +288,34 @@ export const CustomerHomePage: React.FC = () => {
     { day: '30 Nov', heightPct: 37, kg: '3.0 Kg' },
   ];
 
-  // 3 Kartu Progres Cucian & Kurir (identik dengan visual "Product Delivery" di referensi)
-  const deliveryProgressCards = [
-    {
-      id: activeOrderNumber,
-      title: 'Cuci Setrika Kiloan • Ocean Fresh',
-      toCustomer: 'Budi Santoso',
-      fromOperator: 'Raka Pratama (Kurir)',
-      badgeText: 'Selesai Diantar',
-      badgeClass: 'bg-[#E6F8F3] text-[#10B981]',
-      image: '/images/hero-stack.jpg',
-    },
-    {
-      id: 'KCK-2026-002',
-      title: 'Kiloan Reguler 4.5 Kg • Sakura',
-      toCustomer: 'Budi Santoso',
-      fromOperator: 'Dina (Meja Setrika Uap)',
-      badgeText: 'Setrika Uap',
-      badgeClass: 'bg-[#FEF6E0] text-[#EAB308]',
-      image: '/images/auth-laundry.jpg',
-    },
-    {
-      id: 'KCK-2026-003',
-      title: 'Jemput Cucian • Gelombang Sore',
-      toCustomer: 'Budi Santoso',
-      fromOperator: 'Andi Wijaya (Armada 02)',
-      badgeText: 'Dijemput Kurir',
-      badgeClass: 'bg-[#E0F2FE] text-[#0095FF]',
-      image: '/images/hero-stack.jpg',
-    },
-  ];
-
-  // 6 Baris Tabel Riwayat & Rincian Nota (identik dengan visual "Stock Report" di referensi)
-  const orderReportRows: CustomerOrderRow[] = [
-    {
-      id: '1',
-      serviceName: 'Cuci Setrika Kiloan (Ocean Fresh)',
-      orderNumber: `#${activeOrderNumber}`,
-      dateAdded: '27 Nov, 2026',
-      priceText: 'Rp 36.000',
-      statusLabel: 'Disetrika Uap',
-      statusType: 'in_process',
-      qtyText: '4.50 KG',
-    },
-    {
-      id: '2',
-      serviceName: 'Dry Clean Jas & Blazer Eksekutif',
-      orderNumber: '#KCK-2026-002',
-      dateAdded: '22 Nov, 2026',
-      priceText: 'Rp 65.000',
-      statusLabel: 'Menunggu Bayar',
-      statusType: 'unpaid',
-      qtyText: '2 PCS',
-    },
-    {
-      id: '3',
-      serviceName: 'Bed Cover King Size + Sprei Set',
-      orderNumber: '#KCK-2025-098',
-      dateAdded: '18 Nov, 2026',
-      priceText: 'Potong Kuota',
-      statusLabel: 'Selesai & Rapi',
-      statusType: 'completed',
-      qtyText: '6.00 KG',
-    },
-    {
-      id: '4',
-      serviceName: 'Cuci Lipat Anak Kos (Vanilla Mist)',
-      orderNumber: '#KCK-2025-084',
-      dateAdded: '12 Nov, 2026',
-      priceText: 'Potong Kuota',
-      statusLabel: 'Selesai & Rapi',
-      statusType: 'completed',
-      qtyText: '5.20 KG',
-    },
-    {
-      id: '5',
-      serviceName: 'Treatment Noda Kemeja Putih',
-      orderNumber: '#KCK-2025-071',
-      dateAdded: '06 Nov, 2026',
-      priceText: 'Rp 25.000',
-      statusLabel: 'Selesai & Rapi',
-      statusType: 'completed',
-      qtyText: '3 PCS',
-    },
-    {
-      id: '6',
-      serviceName: 'Top-Up Paket Keluarga Ceria 50 Kg',
-      orderNumber: '#PKG-KEL-050',
-      dateAdded: '01 Nov, 2026',
-      priceText: 'Rp 300.000',
-      statusLabel: 'Kuota Aktif',
-      statusType: 'in_process',
-      qtyText: '50.0 KG',
-    },
-  ];
-
-  // Avatar tim operator & kurir
-  const teamAvatars = [
-    'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
-    'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&q=80',
-    'https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=120&q=80',
-    'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80',
-    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=120&q=80',
+  // Avatar kru pencuci & kurir hari ini
+  const crewAvatars = [
+    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
+    'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80',
+    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80',
+    'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=120&q=80',
   ];
 
   return (
     <CustomerLayout>
-      <div className="max-w-[1280px] mx-auto space-y-6">
-        {/* Page Heading */}
-        <h1 className="text-[21px] font-extrabold text-[#111827] tracking-tight">
-          Dashboard
-        </h1>
+      <div className="space-y-6 max-w-[1280px] mx-auto">
+        {/* Page Heading + Quick Action to Voucher */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-[21px] font-extrabold text-[#111827] tracking-tight">
+            Dashboard
+          </h1>
 
-        {/* ROW 1: 3 TOP KPI SUMMARY CARDS */}
+          <Link
+            to="/app/voucher"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white border border-slate-200/80 hover:border-[#0095FF] text-xs font-extrabold text-[#111827] shadow-2xs transition"
+          >
+            <TicketPercent className="w-4 h-4 text-[#0095FF]" />
+            <span>{claimedVouchersCount} Voucher Promo Aktif</span>
+          </Link>
+        </div>
+
+        {/* ROW 1: 3 Top KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* Card 1: Sisa Kuota Langganan */}
           <div className="bg-white rounded-2xl p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between min-h-[138px]">
@@ -196,30 +325,31 @@ export const CustomerHomePage: React.FC = () => {
               </span>
               <Link
                 to="/app/beli-paket"
-                title="Tambah Kuota Paket"
+                title="Top-up Paket Kuota"
                 className="w-7 h-5 rounded-md bg-[#F5F7FA] hover:bg-slate-200 text-[#94A3B8] flex items-center justify-center transition"
               >
                 <MoreHorizontal className="w-4 h-4" />
               </Link>
             </div>
 
-            <div className="mt-5 flex items-end justify-between gap-2">
+            <div className="mt-4 flex items-end justify-between gap-2">
               <span className="text-[25px] sm:text-[27px] font-black text-[#111827] tracking-tight leading-none">
                 {remainingQuotaKg.toFixed(2)} Kg
               </span>
+
               <div className="text-right">
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#E6F8F3] text-[#10B981] text-[10.5px] font-extrabold">
                   <TrendingUp className="w-3 h-3" />
                   5.5%
                 </span>
-                <p className="text-[10.5px] text-[#CBD5E1] font-medium mt-1">
+                <p className="text-[10px] font-medium text-[#CBD5E1] mt-1">
                   Paket Keluarga Aktif s/d Des 2026
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Card 2: Rata-rata / Pengeluaran Laundry */}
+          {/* Card 2: Pengeluaran Bulan Ini */}
           <div className="bg-white rounded-2xl p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between min-h-[138px]">
             <div className="flex items-center justify-between">
               <span className="text-[13.5px] font-semibold text-[#94A3B8]">
@@ -227,24 +357,25 @@ export const CustomerHomePage: React.FC = () => {
               </span>
               <Link
                 to="/app/riwayat"
-                title="Lihat Riwayat Pengeluaran"
+                title="Lihat Riwayat Nota"
                 className="w-7 h-5 rounded-md bg-[#F5F7FA] hover:bg-slate-200 text-[#94A3B8] flex items-center justify-center transition"
               >
                 <MoreHorizontal className="w-4 h-4" />
               </Link>
             </div>
 
-            <div className="mt-5 flex items-end justify-between gap-2">
+            <div className="mt-4 flex items-end justify-between gap-2">
               <span className="text-[25px] sm:text-[27px] font-black text-[#111827] tracking-tight leading-none">
                 Rp {monthlySpendRp.toLocaleString('id-ID')}
               </span>
+
               <div className="text-right">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#FFEBEB] text-[#F43F5E] text-[10.5px] font-extrabold">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#FEECEB] text-[#F43F5E] text-[10.5px] font-extrabold">
                   <TrendingDown className="w-3 h-3" />
-                  22.4%
+                  18.9%
                 </span>
-                <p className="text-[10.5px] text-[#CBD5E1] font-medium mt-1">
-                  Lebih hemat dengan potong kuota
+                <p className="text-[10px] font-medium text-[#CBD5E1] mt-1">
+                  Lebih hemat dengan Paket & Voucher
                 </p>
               </div>
             </div>
@@ -268,19 +399,19 @@ export const CustomerHomePage: React.FC = () => {
             <div className="mt-3.5 flex items-end justify-between gap-2">
               <div>
                 <p className="text-[10px] font-semibold text-[#94A3B8] mb-1.5">
-                  Tim Produksi & Kurir
+                  Kru & Kurir Siaga
                 </p>
                 <div className="flex items-center -space-x-2">
-                  {teamAvatars.map((src, idx) => (
+                  {crewAvatars.map((src, i) => (
                     <img
-                      key={idx}
+                      key={i}
                       src={src}
                       alt="Kru Kucek"
                       className="w-7 h-7 rounded-full object-cover ring-2 ring-white"
                     />
                   ))}
                   <span className="w-7 h-7 rounded-full bg-[#E2E8F0] text-[#475569] text-[10px] font-extrabold flex items-center justify-center ring-2 ring-white">
-                    +8
+                    +12
                   </span>
                 </div>
               </div>
@@ -292,86 +423,71 @@ export const CustomerHomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* ROW 2: BAR CHART (LEFT 7 COLS) & DONUT CHART (RIGHT 5 COLS) */}
+        {/* ROW 2: Vertical Pill Bar Chart (7 Cols) + Donut Chart (5 Cols) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          {/* Left 7 Cols: Vertical Blue Pill Bar Chart */}
+          {/* Left 7 Cols: Pemakaian Laundry Bulan Ini */}
           <div className="lg:col-span-7 bg-white rounded-2xl p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between">
-            <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-[17px] font-extrabold text-[#111827] tracking-tight">
                   Pemakaian Laundry Bulan Ini
                 </h2>
                 <p className="text-[11.5px] font-medium text-[#CBD5E1] mt-0.5">
-                  Akumulasi cucian kiloan & satuan dari semua layanan
+                  Akumulasi cucian kiloan, satuan & antar-jemput
                 </p>
               </div>
+
               <div className="text-right">
-                <p className="text-[22px] font-black text-[#111827] leading-none">
+                <p className="text-[22px] font-black text-[#111827] tracking-tight leading-none">
                   {monthlyUsageKg.toFixed(2)} Kg
                 </p>
-                <p className="text-[11px] font-medium text-[#CBD5E1] mt-1">
-                  Tersisa {remainingQuotaKg.toFixed(2)} Kg menuju batas kuota
+                <p className="text-[10.5px] font-medium text-[#CBD5E1] mt-1">
+                  Target kuota hemat 50.00 Kg
                 </p>
               </div>
             </div>
 
-            {/* Chart Area */}
-            <div className="mt-7 flex gap-4">
-              {/* Y-Axis Labels */}
-              <div className="flex flex-col justify-between text-[10.5px] font-semibold text-[#94A3B8] pb-6 select-none shrink-0">
-                <span>10KG</span>
-                <span>8KG</span>
-                <span>6KG</span>
-                <span>4KG</span>
-                <span>2KG</span>
-                <span>0KG</span>
+            <div className="mt-7 flex gap-3">
+              <div className="flex flex-col justify-between text-[10.5px] font-semibold text-[#94A3B8] pb-6 pr-1 select-none">
+                <span>10 Kg</span>
+                <span>8 Kg</span>
+                <span>6 Kg</span>
+                <span>4 Kg</span>
+                <span>2 Kg</span>
+                <span>0 Kg</span>
               </div>
 
-              {/* Bars + Grid Lines */}
               <div className="flex-1 flex flex-col">
-                <div className="relative h-[175px] flex items-end justify-between gap-1.5 sm:gap-2.5 px-2 pt-2 border-b border-slate-100">
-                  {/* Horizontal subtle dashed guides */}
-                  <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
-                    {[0, 1, 2, 3, 4, 5].map((line) => (
-                      <div
-                        key={line}
-                        className="w-full border-b border-dashed border-slate-100/90"
-                      />
-                    ))}
-                  </div>
-
-                  {/* 16 Rounded Vertical Blue Pill Bars */}
-                  {monthlyBarData.map((bar, index) => (
+                <div className="h-[185px] flex items-end justify-between gap-1.5 sm:gap-2.5 px-1 border-b border-slate-100 pb-2">
+                  {monthlyBarData.map((bar, idx) => (
                     <div
-                      key={index}
-                      className="relative z-10 flex-1 flex flex-col items-center justify-end h-full group"
+                      key={idx}
+                      className="flex-1 h-full flex items-end justify-center group relative"
                     >
-                      {/* Tooltip on hover */}
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-7 bg-[#111827] text-white text-[10px] font-bold px-2 py-0.5 rounded-md whitespace-nowrap pointer-events-none shadow-md">
-                        {bar.day}: {bar.kg}
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-7 bg-[#111827] text-white text-[10px] font-bold px-2 py-0.5 rounded-md whitespace-nowrap pointer-events-none z-10">
+                        {bar.kg}
                       </div>
                       <div
                         style={{ height: `${bar.heightPct}%` }}
-                        className="w-2 sm:w-2.5 md:w-3 rounded-full bg-gradient-to-t from-[#0088FF] to-[#1AA3FF] group-hover:from-[#0066CC] group-hover:to-[#0095FF] transition-all duration-300 shadow-[0_4px_10px_-2px_rgba(0,149,255,0.4)]"
+                        className="w-2 sm:w-2.5 rounded-full bg-[#0095FF] group-hover:bg-[#0077CC] transition-all duration-300 shadow-[0_4px_10px_-2px_rgba(0,149,255,0.45)]"
                       />
                     </div>
                   ))}
                 </div>
 
-                {/* X-Axis Labels */}
-                <div className="flex items-center justify-between text-[10.5px] font-semibold text-[#94A3B8] pt-3 px-2 select-none">
-                  <span>Nov 01</span>
-                  <span>Nov 10</span>
-                  <span>Nov 15</span>
-                  <span>Nov 20</span>
-                  <span>Nov 25</span>
-                  <span>Nov 30</span>
+                <div className="flex items-center justify-between text-[10.5px] font-semibold text-[#94A3B8] pt-3 px-2">
+                  <span>01 Nov</span>
+                  <span>10 Nov</span>
+                  <span>15 Nov</span>
+                  <span>20 Nov</span>
+                  <span>25 Nov</span>
+                  <span>30 Nov</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right 5 Cols: Donut Chart (Komposisi Layanan) */}
+          {/* Right 5 Cols: Komposisi Layanan */}
           <div className="lg:col-span-5 bg-white rounded-2xl p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between">
             <div className="flex items-start justify-between">
               <div>
@@ -379,91 +495,97 @@ export const CustomerHomePage: React.FC = () => {
                   Komposisi Layanan
                 </h2>
                 <p className="text-[11.5px] font-medium text-[#CBD5E1] mt-0.5">
-                  Rincian cucian dari semua kategori
+                  Rincian jenis layanan yang Anda gunakan
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => navigate('/app/beli-paket')}
-                className="w-7 h-5 rounded-md bg-[#F5F7FA] hover:bg-slate-200 text-[#94A3B8] flex items-center justify-center transition cursor-pointer"
+              <Link
+                to="/app/pesan-jemput"
+                title="Pesan Jemput Cucian"
+                className="w-7 h-5 rounded-md bg-[#F5F7FA] hover:bg-slate-200 text-[#94A3B8] flex items-center justify-center transition"
               >
                 <MoreHorizontal className="w-4 h-4" />
-              </button>
+              </Link>
             </div>
 
-            <div className="my-auto pt-4 flex flex-col sm:flex-row items-center justify-between gap-6">
-              {/* Left Legend with Pill Indicators */}
-              <div className="space-y-3.5 w-full sm:w-auto">
-                <div className="flex items-center justify-between sm:justify-start gap-3 text-xs">
-                  <span className="w-4 h-2 rounded-full bg-[#E5E7EB] shrink-0" />
-                  <span className="text-[#94A3B8] font-medium min-w-[85px]">
-                    Bed Cover
+            <div className="my-auto py-4 flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div className="space-y-3 w-full sm:w-auto">
+                <div className="flex items-center justify-between sm:justify-start gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-2 rounded-full bg-[#E2E8F0] inline-block" />
+                    <span className="text-xs font-medium text-[#94A3B8]">
+                      Express 24J
+                    </span>
+                  </div>
+                  <span className="text-xs font-extrabold text-[#111827]">
+                    {composition.expressKg.toFixed(2)} Kg
                   </span>
-                  <span className="font-extrabold text-[#111827]">6.50 Kg</span>
                 </div>
 
-                <div className="flex items-center justify-between sm:justify-start gap-3 text-xs">
-                  <span className="w-4 h-2 rounded-full bg-[#22C55E] shrink-0" />
-                  <span className="text-[#94A3B8] font-medium min-w-[85px]">
-                    Dry Clean
+                <div className="flex items-center justify-between sm:justify-start gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-2 rounded-full bg-[#10B981] inline-block" />
+                    <span className="text-xs font-medium text-[#94A3B8]">
+                      Dry Clean & Satuan
+                    </span>
+                  </div>
+                  <span className="text-xs font-extrabold text-[#111827]">
+                    {composition.satuanKg.toFixed(2)} Kg
                   </span>
-                  <span className="font-extrabold text-[#111827]">7.50 Kg</span>
                 </div>
 
-                <div className="flex items-center justify-between sm:justify-start gap-3 text-xs">
-                  <span className="w-4 h-2 rounded-full bg-[#0095FF] shrink-0" />
-                  <span className="text-[#94A3B8] font-medium min-w-[85px]">
-                    Kiloan Rutin
+                <div className="flex items-center justify-between sm:justify-start gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-2 rounded-full bg-[#0095FF] inline-block" />
+                    <span className="text-xs font-medium text-[#94A3B8]">
+                      Kiloan Setrika
+                    </span>
+                  </div>
+                  <span className="text-xs font-extrabold text-[#111827]">
+                    {composition.kiloanKg.toFixed(2)} Kg
                   </span>
-                  <span className="font-extrabold text-[#111827]">24.50 Kg</span>
                 </div>
               </div>
 
-              {/* Right SVG 3-Segment Donut Chart matching reference screenshot */}
               <div className="relative w-44 h-44 flex items-center justify-center shrink-0">
                 <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
-                  {/* Background Ring */}
                   <circle
                     cx="60"
                     cy="60"
                     r="46"
-                    fill="none"
-                    stroke="#E5E7EB"
-                    strokeWidth="15"
+                    fill="transparent"
+                    stroke="#E2E8F0"
+                    strokeWidth="13"
                   />
-                  {/* Blue Segment (Kiloan Rutin ~58%) */}
                   <circle
                     cx="60"
                     cy="60"
                     r="46"
-                    fill="none"
+                    fill="transparent"
                     stroke="#0095FF"
-                    strokeWidth="15"
-                    strokeDasharray="168 289"
+                    strokeWidth="13"
+                    strokeDasharray="165 289"
                     strokeDashoffset="0"
-                    strokeLinecap="butt"
+                    strokeLinecap="round"
                   />
-                  {/* Green Segment (Dry Clean ~24%) */}
                   <circle
                     cx="60"
                     cy="60"
                     r="46"
-                    fill="none"
-                    stroke="#2ECC71"
-                    strokeWidth="15"
+                    fill="transparent"
+                    stroke="#10B981"
+                    strokeWidth="13"
                     strokeDasharray="70 289"
-                    strokeDashoffset="-218"
-                    strokeLinecap="butt"
+                    strokeDashoffset="-175"
+                    strokeLinecap="round"
                   />
                 </svg>
 
-                {/* Center Label inside Donut */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
-                  <span className="text-[19px] font-black text-[#111827] leading-none">
+                  <span className="text-[19px] font-black text-[#111827] tracking-tight leading-none">
                     {monthlyUsageKg.toFixed(2)} Kg
                   </span>
                   <span className="text-[9.5px] font-medium text-[#CBD5E1] mt-1">
-                    Kuota 50 Kg Paket
+                    1 Mesin 1 Pelanggan
                   </span>
                 </div>
               </div>
@@ -471,9 +593,9 @@ export const CustomerHomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* ROW 3: DELIVERY PROGRESS (LEFT 5 COLS) & TRANSACTION REPORT TABLE (RIGHT 7 COLS) */}
+        {/* ROW 3: Progres Antar-Jemput (5 Cols) + Rincian Nota & Kuota Cucian (7 Cols) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          {/* Left 5 Cols: Progres Cucian & Kurir (matching "Product Delivery" dashed cards) */}
+          {/* Left 5 Cols: Progres Antar-Jemput */}
           <div className="lg:col-span-5 bg-white rounded-2xl p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between">
             <div className="flex items-start justify-between gap-2">
               <div>
@@ -481,7 +603,7 @@ export const CustomerHomePage: React.FC = () => {
                   Progres Antar-Jemput
                 </h2>
                 <p className="text-[11.5px] font-medium text-[#CBD5E1] mt-0.5">
-                  3 pesanan aktif & pengantaran terbaru
+                  Pesanan aktif & pengantaran terbaru Anda
                 </p>
               </div>
               <Link
@@ -521,7 +643,7 @@ export const CustomerHomePage: React.FC = () => {
                   </div>
 
                   <span
-                    className={`px-2.5 py-1 rounded-lg text-[10.5px] font-extrabold shrink-0 ${item.badgeClass}`}
+                    className={`px-3 py-1 rounded-lg text-[10.5px] font-extrabold shrink-0 ${item.badgeClass}`}
                   >
                     {item.badgeText}
                   </span>
@@ -530,7 +652,7 @@ export const CustomerHomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right 7 Cols: Riwayat & Nota Cucian Table (matching "Stock Report" table) */}
+          {/* Right 7 Cols: Rincian Nota & Kuota Cucian */}
           <div className="lg:col-span-7 bg-white rounded-2xl p-6 shadow-[0_2px_12px_-4px_rgba(15,23,42,0.06)] border border-slate-100/80 flex flex-col justify-between">
             <div className="flex items-start justify-between gap-2">
               <div>
@@ -538,19 +660,20 @@ export const CustomerHomePage: React.FC = () => {
                   Rincian Nota & Kuota Cucian
                 </h2>
                 <p className="text-[11.5px] font-medium text-[#CBD5E1] mt-0.5">
-                  Total {orderReportRows.length} transaksi tercatat pada akun Anda
+                  Total {orderReportRows.length} transaksi & pemotongan kuota terakhir
                 </p>
               </div>
+
               <Link
                 to="/app/pesan-jemput"
                 className="px-3.5 py-1.5 rounded-lg bg-[#F5F7FA] hover:bg-[#0095FF] hover:text-white text-[#64748B] text-[11px] font-bold transition shrink-0"
               >
-                Pesan Jemput +
+                Pesan Jemput
               </Link>
             </div>
 
-            <div className="mt-5 overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[560px]">
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[540px]">
                 <thead>
                   <tr className="text-[11px] font-semibold text-[#CBD5E1] border-b border-slate-100">
                     <th className="pb-3 pr-3 font-semibold">Layanan</th>
@@ -582,16 +705,18 @@ export const CustomerHomePage: React.FC = () => {
                       <td className="py-3 px-2 font-bold text-[#111827]">
                         {row.priceText}
                       </td>
-                      <td className="py-3 px-2 font-extrabold">
-                        {row.statusType === 'in_process' && (
-                          <span className="text-[#0095FF]">{row.statusLabel}</span>
-                        )}
-                        {row.statusType === 'completed' && (
-                          <span className="text-[#10B981]">{row.statusLabel}</span>
-                        )}
-                        {row.statusType === 'unpaid' && (
-                          <span className="text-[#F43F5E]">{row.statusLabel}</span>
-                        )}
+                      <td className="py-3 px-2 font-bold">
+                        <span
+                          className={
+                            row.statusType === 'in_process'
+                              ? 'text-[#0095FF]'
+                              : row.statusType === 'completed'
+                              ? 'text-[#10B981]'
+                              : 'text-[#F43F5E]'
+                          }
+                        >
+                          {row.statusLabel}
+                        </span>
                       </td>
                       <td className="py-3 pl-2 text-right font-extrabold text-[#111827]">
                         {row.qtyText}

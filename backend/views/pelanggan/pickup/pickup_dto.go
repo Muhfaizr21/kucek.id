@@ -9,4 +9,6 @@ type BookPickupRequest struct {
 	WeightKg    float64 `json:"weight_kg"`
 	Fragrance   string  `json:"fragrance"`
 	Notes       string  `json:"notes"`
+	VoucherCode string  `json:"voucher_code"`
+	UseQuota    bool    `json:"use_quota"`
 }
