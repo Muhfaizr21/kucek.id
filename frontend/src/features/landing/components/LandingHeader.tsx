@@ -13,20 +13,20 @@ export const LandingHeader: React.FC = () => {
 
   return (
     <header className="w-full bg-[#F4EDE5] sticky top-0 z-50 border-b border-[#E5DCD2]/80 backdrop-blur-md">
-      <div className="max-w-5xl mx-auto px-5 sm:px-8 h-20 flex items-center justify-between">
-        {/* Brand Logo: kucek.id */}
+      <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 h-20 flex items-center justify-between relative">
+        {/* Brand Logo: kucek.id di pojok kiri (dengan jarak elegan) */}
         <Link
           to="/"
-          className="text-2xl font-black text-[#1A1918] tracking-tight min-h-[44px] inline-flex items-center gap-1 group"
+          className="text-2xl font-black text-[#1A1918] tracking-tight min-h-[44px] inline-flex items-center gap-1 group z-10 shrink-0"
         >
           <span>kucek</span>
           <span className="text-[#C8430E] group-hover:scale-110 transition-transform">.id</span>
         </Link>
 
-        {/* Center Navigation Links (Desktop) */}
+        {/* Center Navigation Links: menu persis di tengah layar */}
         <nav
           aria-label="Navigasi Utama"
-          className="hidden md:flex items-center space-x-7 text-[13.5px] font-semibold text-[#57534E]"
+          className="hidden md:flex items-center space-x-8 text-[14px] font-semibold text-[#57534E] absolute left-1/2 -translate-x-1/2"
         >
           {navLinks.map((item) => {
             const isActive = location.pathname === item.to;
@@ -46,8 +46,8 @@ export const LandingHeader: React.FC = () => {
           })}
         </nav>
 
-        {/* Right Action Buttons */}
-        <div className="hidden md:flex items-center gap-3">
+        {/* Right Action Buttons: Masuk Akun dan Daftar di sebelah kanan */}
+        <div className="hidden md:flex items-center gap-3.5 z-10 shrink-0">
           <Link
             to="/login"
             className="px-4 py-2 min-h-[44px] inline-flex items-center justify-center text-xs font-bold text-[#1A1918] hover:text-[#C8430E] transition"
@@ -55,10 +55,10 @@ export const LandingHeader: React.FC = () => {
             Masuk Akun
           </Link>
           <Link
-            to="/app/pesan-jemput"
-            className="px-5 py-2.5 min-h-[44px] inline-flex items-center justify-center rounded-full bg-[#C8430E] hover:bg-[#AD380A] active:bg-[#932F08] text-white text-xs font-extrabold tracking-wide shadow-sm hover:shadow-md transition-all"
+            to="/daftar"
+            className="px-6 py-2.5 min-h-[44px] inline-flex items-center justify-center rounded-full bg-[#C8430E] hover:bg-[#AD380A] active:bg-[#932F08] text-white text-xs font-extrabold tracking-wide shadow-sm hover:shadow-md transition-all"
           >
-            Pesan Antar-Jemput
+            Daftar
           </Link>
         </div>
 
@@ -68,7 +68,7 @@ export const LandingHeader: React.FC = () => {
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label={mobileMenuOpen ? 'Tutup menu navigasi' : 'Buka menu navigasi'}
           aria-expanded={mobileMenuOpen}
-          className="md:hidden min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-xl text-[#1A1918] hover:bg-[#E8DFD5] active:bg-[#DDD2C5] transition"
+          className="md:hidden min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-xl text-[#1A1918] hover:bg-[#E8DFD5] active:bg-[#DDD2C5] transition z-10"
         >
           {mobileMenuOpen ? (
             <svg aria-hidden="true" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -113,11 +113,11 @@ export const LandingHeader: React.FC = () => {
               Masuk Akun
             </Link>
             <Link
-              to="/app/pesan-jemput"
+              to="/daftar"
               onClick={() => setMobileMenuOpen(false)}
               className="w-full min-h-[44px] inline-flex items-center justify-center rounded-xl bg-[#C8430E] text-white text-xs font-extrabold shadow-sm"
             >
-              Pesan Antar-Jemput
+              Daftar
             </Link>
           </div>
         </nav>

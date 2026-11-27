@@ -50,9 +50,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ initialMode }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Tentukan mode awal dari URL (/register vs /login) atau prop
+  // Tentukan mode awal dari URL (/register, /daftar vs /login) atau prop
   const derivedMode: 'login' | 'register' =
-    initialMode || (location.pathname === '/register' ? 'register' : 'login');
+    initialMode ||
+    (location.pathname === '/register' || location.pathname === '/daftar'
+      ? 'register'
+      : 'login');
 
   const [mode, setMode] = useState<'login' | 'register'>(derivedMode);
   const [selectedSeeder, setSelectedSeeder] = useState<'superadmin' | 'pelanggan'>('superadmin');
