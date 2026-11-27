@@ -9,4 +9,5 @@ import (
 func RegisterDispatchRoutes(rg *gin.RouterGroup) {
 	ctrl := dispatchCtrl.NewDispatchController()
 	rg.GET("/dispatch/pickups", ctrl.ListPickupDeliveries)
+	rg.PATCH("/dispatch/pickups/:id/assign", ctrl.AssignCourier)
 }

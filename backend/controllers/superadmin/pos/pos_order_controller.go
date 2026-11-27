@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"kucek-backend/config"
@@ -72,63 +73,96 @@ func (o *PosOrderController) CreateOrder(c *gin.Context) {
 
 	var customer profile.Customer
 	if err := tx.Where("phone = ?", req.CustomerPhone).First(&customer).Error; err != nil {
+		area := req.CustomerArea
+		if area == "" {
+			area = "Sleman (Zona Gratis Ongkir)"
+		}
 		customer = profile.Customer{
 			Name:    req.CustomerName,
 			Phone:   req.CustomerPhone,
 			Address: req.Address,
-			Area:    req.CustomerArea,
+			Area:    area,
 		}
 		if err := tx.Create(&customer).Error; err != nil {
 			tx.Rollback()
 			response.InternalError(c, "Gagal membuat data pelanggan", err)
 			return
 		}
-	} else if req.Address != "" && customer.Address != req.Address {
-		customer.Address = req.Address
-		tx.Save(&customer)
+	} else {
+		updated := false
+		if req.CustomerName != "" && customer.Name != req.CustomerName {
+			customer.Name = req.CustomerName
+			updated = true
+		}
+		if req.Address != "" && customer.Address != req.Address {
+			customer.Address = req.Address
+			updated = true
+		}
+		if updated {
+			tx.Save(&customer)
+		}
 	}
 
 	now := time.Now()
-	var countToday int64
-	todayStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-	tx.Model(&order.Order{}).Where("created_at >= ?", todayStart).Count(&countToday)
-	orderNumber := fmt.Sprintf("KCK-%s-%04d", now.Format("20060102"), countToday+1)
+	var totalOrderCount int64
+	tx.Model(&order.Order{}).Count(&totalOrderCount)
+	orderNumber := fmt.Sprintf("KCK-%d-%03d", now.Year(), totalOrderCount+1)
 
 	var subtotal float64
 	var orderItems []order.OrderItem
 
-	if req.ServiceType == "kiloan" {
-		pricePerKg := req.PricePerKg
-		if pricePerKg <= 0 {
-			pricePerKg = 8000
-		}
-		subtotal = req.WeightKg * pricePerKg
-	} else {
-		for _, item := range req.Items {
-			itemTotal := float64(item.Quantity) * item.UnitPrice
-			subtotal += itemTotal
-			orderItems = append(orderItems, order.OrderItem{
-				ItemName:   item.ItemName,
-				Quantity:   item.Quantity,
-				UnitPrice:  item.UnitPrice,
-				TotalPrice: itemTotal,
-			})
-		}
+	pricePerKg := req.PricePerKg
+	if pricePerKg <= 0 {
+		pricePerKg = 8000
 	}
 
-	totalAmount := subtotal - req.Discount + req.DeliveryFee
+	// Hitung kiloan jika weight > 0
+	if req.WeightKg > 0 {
+		subtotal += req.WeightKg * pricePerKg
+	}
+
+	// Hitung item satuan jika ada
+	for _, item := range req.Items {
+		itemTotal := float64(item.Quantity) * item.UnitPrice
+		subtotal += itemTotal
+		orderItems = append(orderItems, order.OrderItem{
+			ItemName:   item.ItemName,
+			Quantity:   item.Quantity,
+			UnitPrice:  item.UnitPrice,
+			TotalPrice: itemTotal,
+		})
+	}
+
+	paymentMethod := strings.ToLower(req.PaymentMethod)
+	if paymentMethod == "" {
+		paymentMethod = "cash"
+	}
+
+	var quotaUsedKg float64
+	kiloanCost := req.WeightKg * pricePerKg
+	discount := req.Discount
+
+	if (paymentMethod == "package" || paymentMethod == "kuota") && req.WeightKg > 0 && customer.RemainingQuota > 0 {
+		if customer.RemainingQuota >= req.WeightKg {
+			quotaUsedKg = req.WeightKg
+			customer.RemainingQuota -= req.WeightKg
+			discount += kiloanCost
+		} else {
+			quotaUsedKg = customer.RemainingQuota
+			discount += quotaUsedKg * pricePerKg
+			customer.RemainingQuota = 0
+		}
+		tx.Save(&customer)
+	}
+
+	totalAmount := subtotal - discount + req.DeliveryFee
 	if totalAmount < 0 {
 		totalAmount = 0
 	}
 
 	paymentStatus := order.PaymentUnpaid
-	if req.PaymentStatus == "paid" {
+	if req.PaymentStatus == "paid" || totalAmount == 0 {
 		paymentStatus = order.PaymentPaid
-	}
-
-	paymentMethod := "cash"
-	if req.PaymentMethod != "" {
-		paymentMethod = req.PaymentMethod
 	}
 
 	fragrance := "ocean_fresh"
@@ -142,9 +176,10 @@ func (o *PosOrderController) CreateOrder(c *gin.Context) {
 		ServiceType:   req.ServiceType,
 		WeightKg:      req.WeightKg,
 		Fragrance:     fragrance,
-		PricePerKg:    req.PricePerKg,
+		PricePerKg:    pricePerKg,
 		Subtotal:      subtotal,
-		Discount:      req.Discount,
+		Discount:      discount,
+		QuotaUsedKg:   quotaUsedKg,
 		DeliveryFee:   req.DeliveryFee,
 		TotalAmount:   totalAmount,
 		Status:        order.StatusTerima,
@@ -164,20 +199,23 @@ func (o *PosOrderController) CreateOrder(c *gin.Context) {
 		OrderID:     newOrder.ID,
 		OrderNumber: newOrder.OrderNumber,
 		Status:      string(order.StatusTerima),
-		Title:       "Cucian Diterima Kasir",
-		Description: fmt.Sprintf("Pesanan laundry %s diterima dan tercatat di sistem.", req.ServiceType),
-		Location:    "Kucek Hub Utama",
+		Title:       "Cucian Diterima Kasir POS",
+		Description: fmt.Sprintf("Nota %s (%s • %.2f Kg) berhasil dicetak di kasir.", orderNumber, req.ServiceType, req.WeightKg),
+		Location:    "Outlet Utama Kucek.id",
 		UpdatedBy:   "Kasir POS",
-		Timestamp:   time.Now(),
+		Timestamp:   now,
 	}
 	tx.Create(&initialLog)
 
-	tx.Model(&customer).Update("total_orders", customer.TotalOrders+1)
+	tx.Model(&customer).Updates(map[string]interface{}{
+		"total_orders":   customer.TotalOrders + 1,
+		"loyalty_points": customer.LoyaltyPoints + 15,
+	})
 	tx.Commit()
 
 	config.DB.Preload("Customer").Preload("Items").Preload("Tracking").First(&newOrder, newOrder.ID)
 
-	response.Success(c, http.StatusCreated, "Pesanan laundry berhasil dibuat", newOrder)
+	response.Success(c, http.StatusCreated, "Transaksi Kasir POS berhasil disimpan", newOrder)
 }
 
 func (o *PosOrderController) UpdatePayment(c *gin.Context) {
@@ -200,5 +238,6 @@ func (o *PosOrderController) UpdatePayment(c *gin.Context) {
 	}
 
 	config.DB.Save(&ord)
+	config.DB.Preload("Customer").Preload("Items").Preload("Tracking").First(&ord, ord.ID)
 	response.Success(c, http.StatusOK, "Status pembayaran berhasil diperbarui", ord)
 }

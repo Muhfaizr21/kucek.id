@@ -29,6 +29,7 @@ import (
 	superadminPackageRoutes "kucek-backend/routes/superadmin/packages"
 	superadminPosRoutes "kucek-backend/routes/superadmin/pos"
 	superadminProductionRoutes "kucek-backend/routes/superadmin/production"
+	superadminServiceRoutes "kucek-backend/routes/superadmin/service_catalog"
 	superadminStaffRoutes "kucek-backend/routes/superadmin/staff"
 
 	"github.com/gin-gonic/gin"
@@ -79,6 +80,7 @@ func SetupRouter() *gin.Engine {
 				superadminDispatchRoutes.RegisterDispatchRoutes(adminGroup)
 				superadminCustomerRoutes.RegisterCustomerRoutes(adminGroup)
 				superadminPackageRoutes.RegisterPackageManagementRoutes(adminGroup)
+				superadminServiceRoutes.RegisterServiceCatalogRoutes(adminGroup)
 				superadminFinanceRoutes.RegisterFinanceRoutes(adminGroup)
 				superadminStaffRoutes.RegisterStaffRoutes(adminGroup)
 			}
